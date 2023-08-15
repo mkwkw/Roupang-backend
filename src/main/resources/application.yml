@@ -12,3 +12,7 @@ spring:
   config:
     import:
       - classpath:mysql.yml
+
+springdoc:
+  swagger-ui:
+    path: /api-doc.html
