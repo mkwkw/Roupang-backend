@@ -1,4 +1,4 @@
-package com.teamsupercat.roupangbackend.repository.payment;
+package com.teamsupercat.roupangbackend.repository;
 
 import com.teamsupercat.roupangbackend.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;

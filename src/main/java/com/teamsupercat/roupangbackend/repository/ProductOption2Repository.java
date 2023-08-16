@@ -1,4 +1,4 @@
-package com.teamsupercat.roupangbackend.repository.productOption2;
+package com.teamsupercat.roupangbackend.repository;
 
 import com.teamsupercat.roupangbackend.entity.ProductOption2;
 import org.springframework.data.jpa.repository.JpaRepository;
