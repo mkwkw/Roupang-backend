@@ -25,6 +25,7 @@ public class JwtTokenProvider {
     final private UserDetailsService userDetailsService;
     final long AccessTokenValidMilliSecond =  1000L * 60 * 60; // 1시간
     final long RefreshTokenValidMilliSecond = 1000L *60 * 60 *24 * 7; //  1주일
+
     @PostConstruct
     public void setUp(){
         secretKey = Base64.getEncoder()
@@ -33,18 +34,19 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("Authorization");
     }
-    public String createAccessToken(String email){
+    public String createAccessToken(String email,Integer id){
         Claims claims = Jwts.claims().setSubject(email);
+        claims.put("idx",id);
         Date now = new Date();
         return Jwts.builder()
-                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime()+ AccessTokenValidMilliSecond))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
-    public String createRefreshToken(String email){
+    public String createRefreshToken(String email,Integer id){
         Claims claims = Jwts.claims().setSubject(email);
+        claims.put("idx", id);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
