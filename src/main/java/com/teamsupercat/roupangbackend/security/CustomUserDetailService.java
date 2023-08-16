@@ -2,7 +2,7 @@ package com.teamsupercat.roupangbackend.security;
 
 import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import com.teamsupercat.roupangbackend.entity.Member;
-import com.teamsupercat.roupangbackend.repository.member.MemberRepository;
+import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
