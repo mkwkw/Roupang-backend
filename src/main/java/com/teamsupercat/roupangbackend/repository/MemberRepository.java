@@ -1,4 +1,4 @@
-package com.teamsupercat.roupangbackend.repository.member;
+package com.teamsupercat.roupangbackend.repository;
 
 import com.teamsupercat.roupangbackend.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

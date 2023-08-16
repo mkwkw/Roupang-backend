@@ -1,4 +1,4 @@
-package com.teamsupercat.roupangbackend.repository.groupedOrder;
+package com.teamsupercat.roupangbackend.repository;
 
 import com.teamsupercat.roupangbackend.entity.GroupedOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
