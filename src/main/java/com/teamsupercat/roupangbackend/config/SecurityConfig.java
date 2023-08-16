@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -25,6 +27,7 @@ import java.util.Arrays;
 public class SecurityConfig{
     private final JwtTokenProvider jwtTokenProvider;
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.headers().frameOptions().sameOrigin()
@@ -34,8 +37,10 @@ public class SecurityConfig{
                 .rememberMe().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .cors()
+                .and()
                 .authorizeRequests()
-                .antMatchers("/resources/static/**","/v1/api/*").permitAll()
+                .antMatchers("/resources/static/**","/*").permitAll()
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
@@ -46,15 +51,16 @@ public class SecurityConfig{
     }
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 모든 도메인을 허용
+        configuration.setAllowedMethods(Arrays.asList("*")); // 모든 HTTP 메서드를 허용
+        configuration.setAllowedHeaders(Arrays.asList("*")); //모든 HTTP 헤더를 허용
+        configuration.setAllowCredentials(true); // 자격 증명 정보를 요청
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 정책 적용
         return source;
     }
 }
