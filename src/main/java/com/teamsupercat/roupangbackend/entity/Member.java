@@ -1,11 +1,14 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.teamsupercat.roupangbackend.dto.seller.SellerRequest;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
-
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Getter
 @Setter
 @Entity
@@ -47,4 +50,7 @@ public class Member {
     @Column(name = "user_point")
     private Long userPoint;
 
+
+
 }
+
