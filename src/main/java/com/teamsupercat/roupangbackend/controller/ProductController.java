@@ -71,22 +71,17 @@ public class ProductController {
 
     }
 
-//    @ApiOperation(value= "판매 물품들 내역 조회 ", notes = "판매자의 판매 물품 리스트 조회")
-//    @GetMapping("/seller/products")
-//    public ResponseDto<Object> getProductsList(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            @RequestParam(required = false) String order,
-//            @RequestParam(required = false) String category){
-//
-//        Integer userId = 1;
-//
-//        List<AllProductsResponse> allProductsResponseList = productService.getProductsList(page, size, order, category, userId);
-//
-//
-//        return new ResponseDto<>(true, "판매자의 판매 물품 내역 조회에 성공하였습니다.", allProductsResponseList);
-//
-//    }
+
+
+    @ApiOperation(value= "판매 물품들 내역 조회 ", notes = "판매자의 판매 물품 리스트 조회")
+    @GetMapping("/seller/products")
+    public ResponseDto<Object> getProductsList(@RequestParam("order") String order, Pageable pageable){
+        Integer userId = 1;
+
+        Page<AllProductsResponse> productsList = productService.getProductsList(order, pageable, userId);
+
+        return new ResponseDto<>(true, "판매자의 판매 물품 내역 조회에 성공하였습니다.", productsList);
+    }
 
 
 
