@@ -22,7 +22,9 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Page<Product> findProductByProductsCategoryIdxId(Integer categoryIdx, Pageable pageable);
 
+    List<Product> findProductByProductsCategoryIdxId(Integer categoryIdx);
 
+    Page<Product> findProductByProductsCategoryIdxIdOrderByPrice(Integer categoryIdx, Pageable pageable);
 
-
+    Page<Product> findProductByProductsCategoryIdxIdOrderByPriceDesc(Integer categoryIdx, Pageable pageable);
 }
