@@ -42,4 +42,9 @@ public class RefreshToken {
     public void deleteToken(){
         this.isDeleted = true;
     }
+
+    public void updateToken(String refreshToken) {
+        this.token = refreshToken;
+        this.isDeleted = false;
+    }
 }

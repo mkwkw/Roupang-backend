@@ -68,10 +68,19 @@ public class MemberService {
             String accessToken = jwtTokenProvider.createAccessToken(member);
             String refreshToken = jwtTokenProvider.createRefreshToken(member);
 
-            response.setHeader("Authorization","Bearer "+accessToken);
+            RefreshToken token;
+            boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
 
-            RefreshToken token = memberMapper.RefreshTokenFromToken(member,refreshToken);
-            refreshTokenRepository.save(token);
+            if (tokenExistCheck){
+                token = refreshTokenRepository.findByMemberIdx(member.getId())
+                        .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN));
+                token.updateToken(refreshToken);
+            }else{
+                token = memberMapper.RefreshTokenFromToken(member,refreshToken);
+                refreshTokenRepository.save(token);
+            }
+
+            response.setHeader("Authorization","Bearer "+accessToken);
 
             return ResponseDto.success("로그인에 성공하였습니다.");
         }else {
