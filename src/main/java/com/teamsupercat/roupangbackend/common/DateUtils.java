@@ -19,6 +19,9 @@ public class DateUtils {
     public static String convertToString(Timestamp inputDate) throws ParseException {
         String pattern = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        if(inputDate==null){
+            return "판매 종료 날짜가 없습니다.";
+        }
         return sdf.format(inputDate);
     }
 }
