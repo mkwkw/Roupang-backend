@@ -5,7 +5,6 @@ import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.dto.seller.SellerRequest;
-import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.service.OptionService;
 import com.teamsupercat.roupangbackend.service.ProductService;
 import io.swagger.annotations.Api;
@@ -14,15 +13,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -87,15 +81,15 @@ public class ProductController {
 
     @ApiOperation("물품 조회 - 정렬 기준 설정 가능")
     @GetMapping("/products")
-    public ResponseDto<?> findAllProducts(@RequestParam("order") String order, Pageable pageable){
-        Page<Product> products = productService.findItemsPagination(order, pageable);
+    public ResponseDto<?> findAllProducts(@RequestParam(value = "order", required = false) String order, Pageable pageable) throws ParseException {
+        Page<ProductResponse> products = productService.findProductsPagination(order, pageable);
         return ResponseDto.success(products);
     }
 
     @ApiOperation("카테고리별 물품 조회")
     @GetMapping("/products/category/{category_idx}")
-    public ResponseDto<?> findProductsByCategory(@PathVariable("category_idx") Integer categoryIdx, Pageable pageable){
-        Page<Product> products = productService.findItemsByCategoryIdxPagination(categoryIdx, pageable);
+    public ResponseDto<?> findProductsByCategory(@RequestParam(value = "order", required = false) String order, @PathVariable("category_idx") Integer categoryIdx, Pageable pageable){
+        Page<ProductResponse> products = productService.findProductsByCategoryIdxPagination(order, categoryIdx, pageable);
         return ResponseDto.success(products);
     }
 
