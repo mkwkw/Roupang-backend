@@ -1,7 +1,6 @@
 package com.teamsupercat.roupangbackend.dto.cart.response;
 
 import com.teamsupercat.roupangbackend.entity.Cart;
-import com.teamsupercat.roupangbackend.entity.Product;
 import lombok.*;
 
 @Getter
