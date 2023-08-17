@@ -29,6 +29,7 @@ public class CartService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
 
+    // todo: 장바구니에 수량 설정 후 등록
     @Transactional
     public void cartProductPlus(Integer memberId, CartChangeRequest cartChangeRequest) {
         // 유저를 검색해 실제 있는 유저인지 확인
@@ -58,7 +59,7 @@ public class CartService {
 
     }
 
-
+    // todo: 장바구니 모두 비우기
     @Transactional
     public void cartProductDel(Integer member) {
         // 유저와 상품을 검색하여 존재여부 확인
@@ -80,7 +81,7 @@ public class CartService {
 
     }
 
-
+    // todo: 해당 유저 장바구니 내역리스트 출력
     @Transactional
     public List<CartAllResponse> cartAllList(Integer memberId) {
         // 현재 유저를 검색하여 객체형태로 조회한다
