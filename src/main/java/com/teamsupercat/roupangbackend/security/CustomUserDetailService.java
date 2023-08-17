@@ -21,11 +21,6 @@ import org.springframework.stereotype.Service;
 
 public class CustomUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
-    private String inputPassword;
-
-    public void setInputPassword(String inputPassword) {
-        this.inputPassword = inputPassword;
-    }
 
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

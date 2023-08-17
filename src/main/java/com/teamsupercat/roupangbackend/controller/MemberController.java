@@ -26,7 +26,8 @@ public class MemberController {
 
     @PatchMapping(value = "/delete")
     public ResponseDto<?> signOut(@AuthenticationPrincipal UserDetails userDetails) {
-        return memberService.deleteMember(userDetails);
+        String memberEmail = userDetails.getUsername();
+        return memberService.deleteMember(memberEmail);
     }
 
     @PostMapping(value = "/login")
@@ -35,9 +36,8 @@ public class MemberController {
     }
 
     @PatchMapping(value = "/logout")
-//    public ResponseDto<?> signOut(@AuthenticationPrincipal UserDetails userDetails) {
-//        return memberService.deleteMember(userDetails);
-    public ResponseDto<?> logout() {
-        return memberService.logoutMember();
+    public ResponseDto<?> logout(@AuthenticationPrincipal UserDetails userDetails) {
+        String memberEmail = userDetails.getUsername();
+        return memberService.logoutMember(memberEmail);
     }
 }
