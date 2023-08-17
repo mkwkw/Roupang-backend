@@ -39,4 +39,5 @@ public class ProductResponse {
                 .categoryName(product.getProductsCategoryIdx().getCategoryName())
                 .build();
     }
+
 }
