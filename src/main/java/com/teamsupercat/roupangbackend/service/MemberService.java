@@ -3,20 +3,30 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.ResponseDto;
+import com.teamsupercat.roupangbackend.dto.member.LoginRequesrDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
 import com.teamsupercat.roupangbackend.entity.Member;
+import com.teamsupercat.roupangbackend.entity.RefreshToken;
 import com.teamsupercat.roupangbackend.mapper.MemberMapper;
 import com.teamsupercat.roupangbackend.repository.MemberRepository;
+import com.teamsupercat.roupangbackend.repository.RefreshTokenRepository;
+import com.teamsupercat.roupangbackend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RequiredArgsConstructor
 @Service
 public class MemberService {
-    private final MemberRepository memberRepository;
     private final MemberMapper memberMapper;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public ResponseDto<?> createMember(@RequestBody SignupRequestDto signupRequestDto) {
@@ -29,7 +39,9 @@ public class MemberService {
         if (nickNameCheck) throw new CustomException(ErrorCode.SIGNUP_DUPLICATE_NICKNAME);
         if (phoneNumberCheck) throw new CustomException(ErrorCode.SIGNUP_DUPLICATE_PHONENUMBER);
 
-        Member member = memberMapper.makeMemberEntity(signupRequestDto);
+        signupRequestDto.setPassword(passwordEncoder.encode(signupRequestDto.getPassword()));
+
+        Member member = memberMapper.MemberFromSignupDto(signupRequestDto);
 
         memberRepository.save(member);
 
@@ -46,4 +58,29 @@ public class MemberService {
 
         return ResponseDto.success("회원탈퇴에 성공하였습니다.");
     }
+
+    public ResponseDto<?> loginMember(LoginRequesrDto loginRequesrDto, HttpServletResponse response) {
+        Member member = memberRepository.findByEmail(loginRequesrDto.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
+
+        if(passwordEncoder.matches(loginRequesrDto.getPassword(),member.getUserPassword())){
+            System.out.println("같은 비밀번호입니다.");
+        }else {
+            System.out.println("다른 비밀번호입니다.");
+        }
+
+        String accessToken = jwtTokenProvider.createAccessToken(member);
+        String refreshToken = jwtTokenProvider.createRefreshToken(member);
+
+        response.setHeader("Authorization","Bearer "+accessToken);
+
+        RefreshToken token = memberMapper.RefreshTokenFromToken(member,refreshToken);
+        System.out.println("accessToken = " + accessToken);
+        System.out.println("refreshToken = " + refreshToken);
+        refreshTokenRepository.save(token);
+
+        return ResponseDto.success("로그인에 성공하였습니다.");
+    }
+
+
 }

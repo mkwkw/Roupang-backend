@@ -35,7 +35,7 @@ public class SecurityConfig{
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/resources/static/**","/v1/api/*").permitAll()
+                .antMatchers("/resources/static/**","/api/v1/**").permitAll()
                 .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
