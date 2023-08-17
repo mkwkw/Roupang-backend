@@ -55,4 +55,7 @@ public class Member {
     @Column(name = "user_point")
     private Long userPoint;
 
+    public void deleteMember(){
+        this.isDeleted = true;
+    }
 }
