@@ -1,33 +1,50 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "Refresh_token", schema = "supercat")
 public class RefreshToken {
     @Id
     @Column(name = "idx", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "member_idx", nullable = false)
     private Integer memberIdx;
 
-    @Column(name = "token", nullable = false)
+    @Column(name = "token", columnDefinition = "TEXT", nullable = false)
     private String token;
 
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
     private Instant updatedAt;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
+    public void deleteToken(){
+        this.isDeleted = true;
+    }
+
+    public void updateToken(String refreshToken) {
+        this.token = refreshToken;
+        this.isDeleted = false;
+    }
 }

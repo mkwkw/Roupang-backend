@@ -1,16 +1,19 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import com.teamsupercat.roupangbackend.dto.seller.SellerRequest;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.Instant;
-@ToString
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
 @Entity
 @Table(name = "Member", schema = "supercat")
 public class Member {
@@ -39,18 +42,20 @@ public class Member {
     private String memberImg;
 
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
     private Instant updatedAt;
 
     @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
+    private Boolean isDeleted;
 
     @Column(name = "user_point")
     private Long userPoint;
 
-
-
+    public void deleteMember(){
+        this.isDeleted = true;
+    }
 }
-

@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Date;
 
@@ -23,7 +26,6 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
     private String secretKey = "Super-Coding";
-
     final private UserDetailsService userDetailsService;
     final long AccessTokenValidMilliSecond =  1000L * 60 * 60; // 1시간
     final long RefreshTokenValidMilliSecond = 1000L *60 * 60 *24 * 7; //  1주일
@@ -34,30 +36,47 @@ public class JwtTokenProvider {
                 .encodeToString(secretKey.getBytes());
         }
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("Authorization");
+        String token = request.getHeader("Authorization");
+        return token==null ? null : token.substring(7);
     }
-
     public String createAccessToken(Member member){
-        Claims claims = Jwts.claims().setSubject(member.getEmail());
-        claims.put("idx",member.getId());
+        Claims claims = Jwts.claims().setSubject("memberToken");
+
+        claims.put("email",member.getEmail());
         claims.put("nickname",member.getNickname());
         claims.put("phone_number",member.getPhoneNumber());
+        claims.put("address",member.getAddress());
+        claims.put("member_img",member.getMemberImg());
+        claims.put("created_at",timestampToString(member.getCreatedAt()));
+        claims.put("updated_at",timestampToString(member.getUpdatedAt()));
+        claims.put("user_point",member.getUserPoint());
+
         Date now = new Date();
+
         return Jwts.builder()
+                .setIssuer("superCat")
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime()+ AccessTokenValidMilliSecond))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
-
     public String createRefreshToken(Member member){
-        Claims claims = Jwts.claims().setSubject(member.getEmail());
-        claims.put("idx", member.getId());
-        claims.put("idx",member.getId());
+        Claims claims = Jwts.claims().setSubject("memberToken");
+
+        claims.put("email",member.getEmail());
         claims.put("nickname",member.getNickname());
         claims.put("phone_number",member.getPhoneNumber());
+        claims.put("address",member.getAddress());
+        claims.put("member_img",member.getMemberImg());
+        claims.put("created_at",timestampToString(member.getCreatedAt()));
+        claims.put("updated_at",timestampToString(member.getUpdatedAt()));
+        claims.put("user_point",member.getUserPoint());
+
         Date now = new Date();
+
         return Jwts.builder()
+                .setIssuer("superCat")
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime()+ RefreshTokenValidMilliSecond))
@@ -86,12 +105,20 @@ public class JwtTokenProvider {
 
 
     public String getEmail(String jwtToken){
-        String email = Jwts.parser()
+        String email= Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(jwtToken)
                 .getBody()
-                .getSubject();
+                .get("email",String.class);
         return email;
     }
+
+    public String timestampToString(Instant instant){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
+        if(instant != null)return formatter.format(instant);
+
+        else return null;
     }
+}
 
