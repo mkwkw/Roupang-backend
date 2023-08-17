@@ -33,4 +33,11 @@ public class MemberController {
     public ResponseDto<?> login(@RequestBody LoginRequesrDto loginRequesrDto, HttpServletResponse response) {
         return memberService.loginMember(loginRequesrDto,response);
     }
+
+    @PatchMapping(value = "/logout")
+//    public ResponseDto<?> signOut(@AuthenticationPrincipal UserDetails userDetails) {
+//        return memberService.deleteMember(userDetails);
+    public ResponseDto<?> logout() {
+        return memberService.logoutMember();
+    }
 }

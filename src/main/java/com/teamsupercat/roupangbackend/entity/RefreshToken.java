@@ -38,4 +38,8 @@ public class RefreshToken {
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
+
+    public void deleteToken(){
+        this.isDeleted = true;
+    }
 }

@@ -59,28 +59,35 @@ public class MemberService {
         return ResponseDto.success("회원탈퇴에 성공하였습니다.");
     }
 
+    @Transactional
     public ResponseDto<?> loginMember(LoginRequesrDto loginRequesrDto, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(loginRequesrDto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
 
         if(passwordEncoder.matches(loginRequesrDto.getPassword(),member.getUserPassword())){
-            System.out.println("같은 비밀번호입니다.");
+            String accessToken = jwtTokenProvider.createAccessToken(member);
+            String refreshToken = jwtTokenProvider.createRefreshToken(member);
+
+            response.setHeader("Authorization","Bearer "+accessToken);
+
+            RefreshToken token = memberMapper.RefreshTokenFromToken(member,refreshToken);
+            refreshTokenRepository.save(token);
+
+            return ResponseDto.success("로그인에 성공하였습니다.");
         }else {
-            System.out.println("다른 비밀번호입니다.");
+            throw new CustomException(ErrorCode.LOGIN_NOT_MATCH_PASSWORD);
         }
-
-        String accessToken = jwtTokenProvider.createAccessToken(member);
-        String refreshToken = jwtTokenProvider.createRefreshToken(member);
-
-        response.setHeader("Authorization","Bearer "+accessToken);
-
-        RefreshToken token = memberMapper.RefreshTokenFromToken(member,refreshToken);
-        System.out.println("accessToken = " + accessToken);
-        System.out.println("refreshToken = " + refreshToken);
-        refreshTokenRepository.save(token);
-
-        return ResponseDto.success("로그인에 성공하였습니다.");
     }
+    @Transactional
+    public ResponseDto<?> logoutMember() {
+        Member member = memberRepository.findByEmail("superCat1@gmail.com")
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGOUT_NOT_FOUND_EMAIL));
 
+        RefreshToken refreshToken = refreshTokenRepository.findByMemberIdx(member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGOUT_NOT_FOUND_TOKEN));
 
+        refreshToken.deleteToken();
+
+        return ResponseDto.success("로그아웃에 성공하였습니다.");
+    }
 }
