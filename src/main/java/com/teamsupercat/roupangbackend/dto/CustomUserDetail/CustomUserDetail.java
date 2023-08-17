@@ -2,12 +2,10 @@ package com.teamsupercat.roupangbackend.dto.CustomUserDetail;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 @Getter
@@ -25,7 +23,8 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {   // 해당 유저 롤 부여
-        return authority.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+//        return authority.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        return null;
     }
 
     @Override
