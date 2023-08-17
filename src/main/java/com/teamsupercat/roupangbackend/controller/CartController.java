@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Api(tags = "장바구니 API")
@@ -39,7 +40,7 @@ public class CartController {
 
     // request 객체에서 비어있는 값이 있는지 확인하는 코드
     private boolean hasNullFieldsCartPlusRequest(CartChangeRequest request) {
-        return Stream.of(request.getProductIdx(), request.getAmount()).anyMatch(field -> field == null);
+        return Stream.of(request.getProductIdx(), request.getAmount()).anyMatch(Objects::isNull);
     }
 
 
