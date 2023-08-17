@@ -1,11 +1,16 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.Instant;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Getter
 @Setter
 @Entity
@@ -45,13 +50,15 @@ public class Product {
     private Integer stock;
 
     @Column(name = "sales_end_date")
-    private Instant salesEndDate;
+    private Timestamp salesEndDate;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private Timestamp createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private Timestamp updatedAt;
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
