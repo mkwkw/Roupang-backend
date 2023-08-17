@@ -11,14 +11,30 @@ import lombok.*;
 @Builder
 public class CartAllResponse {
     private Integer id;
-    private Product productIdx;
+    private Integer memberId;
+    private Integer productIdx;
+    private String categoryName;
+    private Integer sellerIdx;
+    private String productName;
+    private String productImg;
+    private String description;
+    private Long price;
     private Integer amount;
     private String createdAt;
 
-    public Cart toEntity(Integer user , CartAllResponse cartAllResponse) {
-        return Cart.builder()
-                .id(cartAllResponse.id)
-                .productIdx(cartAllResponse.productIdx)
+    public CartAllResponse toEntity(Integer memberId, Cart cart) {
+        return CartAllResponse.builder()
+                .id(cart.getId())
+                .memberId(memberId)
+                .productIdx(cart.getProductIdx().getId())
+                .categoryName(cart.getProductIdx().getProductsCategoryIdx().getCategoryName())
+                .sellerIdx(cart.getProductIdx().getSellerIdx().getId())
+                .productName(cart.getProductIdx().getProductName())
+                .productImg(cart.getProductIdx().getProductImg())
+                .description(cart.getProductIdx().getDescription())
+                .price(cart.getProductIdx().getPrice())
+                .amount(cart.getAmount())
+                .createdAt(cart.getCreatedAt().toString())
                 .build();
     }
 }
