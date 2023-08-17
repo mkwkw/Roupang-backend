@@ -14,25 +14,18 @@ import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import com.teamsupercat.roupangbackend.repository.ProductRepository;
 import com.teamsupercat.roupangbackend.repository.ProductsCategoryRepository;
 import com.teamsupercat.roupangbackend.repository.SellerRepository;
-import io.swagger.models.auth.In;
-import lombok.RequiredArgsConstructor;
-
-import com.teamsupercat.roupangbackend.entity.Product;
-import com.teamsupercat.roupangbackend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -193,12 +186,10 @@ public class ProductService {
 
 
 
-    //private final ProductMapper productMapper;
+    //물품 전체 조회
+    public Page<ProductResponse> findProductsPagination(String order, Pageable pageable){
 
-    public Page<Product> findItemsPagination(String order, Pageable pageable){
-
-        //최신순
-        Page<Product> productEntities = productRepository.findAll(pageable);
+        Page<Product> productEntities;
 
         if(order.equals("priceAsc")){ //가격 오름차순
             productEntities = productRepository.findProductByOrderByPrice(pageable);
@@ -206,22 +197,57 @@ public class ProductService {
         else if(order.equals("priceDesc")){ //가격 내림차순
             productEntities = productRepository.findProductByOrderByPriceDesc(pageable);
         }
+        else{ //등록순
+            productEntities = productRepository.findAll(pageable);
+        }
 
-        //인기순(판매량순)
+        //TODO. 인기순(판매량순)
 
+
+        return productEntities.map(product -> {
+            try {
+                return new ProductResponse().toDto(product);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return new ProductResponse();
+        });
         //return productEntities.map(productMapper.INSTANCE::ProductEntityToProductResponse);
-        return productEntities;
+        //return productEntities;
     }
 
-    public Page<Product> findItemsByCategoryIdxPagination(Integer categoryIdx, Pageable pageable) {
-        Page<Product> productEntities = productRepository.findProductByProductsCategoryIdxId(categoryIdx, pageable);
-        return productEntities;
+    public Page<ProductResponse> findProductsByCategoryIdxPagination(String order, Integer categoryIdx, Pageable pageable) {
+        //TODO. 해당 카테고리에 해당하는 물품이 없는 경우 - 예외 처리
+        Page<Product> productEntities;
+
+        if(order.equals("priceAsc")){ //가격 오름차순
+            productEntities = productRepository.findProductByProductsCategoryIdxIdOrderByPrice(categoryIdx, pageable);
+        }
+        else if(order.equals("priceDesc")){ //가격 내림차순
+            productEntities = productRepository.findProductByProductsCategoryIdxIdOrderByPriceDesc(categoryIdx, pageable);
+        }
+        else{ //등록순
+            productEntities = productRepository.findProductByProductsCategoryIdxId(categoryIdx, pageable);
+        }
+
+        //TODO. 인기순(판매량순)
+
+
+        return productEntities.map(product -> {
+            try {
+                return new ProductResponse().toDto(product);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return new ProductResponse();
+        });
     }
 
     public Map<String, Object> findProductsByOption(List<String> options, Pageable pageable) {
         //옵션디테일 레포지토리에서 options에 해당하는 상품을 각각 찾아서 교집합 찾기
         return new HashMap<>();
     }
+
 
 
 }
