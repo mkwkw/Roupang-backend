@@ -84,5 +84,5 @@ public class JwtTokenProvider {
                 .getSubject();
         return email;
     }
-    }
+}
 
