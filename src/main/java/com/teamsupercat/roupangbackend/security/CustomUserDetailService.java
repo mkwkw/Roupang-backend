@@ -32,14 +32,11 @@ public class CustomUserDetailService implements UserDetailsService {
     }
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("해당 유저는 존재하지 않습니다."));
 
-        if (!passwordEncoder().matches(inputPassword,member.getUserPassword())) {throw new UsernameNotFoundException("비밀번호가 틀렸습니다");}
-        CustomUserDetail customUserDetail = CustomUserDetail.builder()
+        return CustomUserDetail.builder()
                 .email(member.getEmail())
                 .password(member.getUserPassword())
                 .build();
-        return customUserDetail;
     }
 }

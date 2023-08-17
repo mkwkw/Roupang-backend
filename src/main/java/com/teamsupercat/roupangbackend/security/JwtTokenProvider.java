@@ -105,11 +105,16 @@ public class JwtTokenProvider {
 
 
     public String getEmail(String jwtToken){
-        String email = Jwts.parser()
+//        String email = Jwts.parser()
+//                .setSigningKey(secretKey)
+//                .parseClaimsJws(jwtToken)
+//                .getBody()
+//                .getSubject();
+        Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(jwtToken)
-                .getBody()
-                .getSubject();
+                .getBody();
+        String email = claims.get("email",String.class);
         return email;
     }
 

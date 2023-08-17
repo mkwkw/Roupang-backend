@@ -5,6 +5,8 @@ import com.teamsupercat.roupangbackend.dto.member.LoginRequesrDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
 import com.teamsupercat.roupangbackend.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,10 +25,8 @@ public class MemberController {
     }
 
     @PatchMapping(value = "/delete")
-//    public ResponseDto<?> signOut(@AuthenticationPrincipal UserDetails userDetails) {
-//        return memberService.deleteMember(userDetails);
-    public ResponseDto<?> signOut() {
-        return memberService.deleteMember();
+    public ResponseDto<?> signOut(@AuthenticationPrincipal UserDetails userDetails) {
+        return memberService.deleteMember(userDetails);
     }
 
     @PostMapping(value = "/login")

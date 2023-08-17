@@ -12,6 +12,7 @@ import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import com.teamsupercat.roupangbackend.repository.RefreshTokenRepository;
 import com.teamsupercat.roupangbackend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,9 +50,8 @@ public class MemberService {
     }
 
     @Transactional
-//    public ResponseDto<?> deleteMember(UserDetails userDetails) {
-    public ResponseDto<?> deleteMember() {
-        Member member = memberRepository.findByEmail("superCat1@gmail.com")
+    public ResponseDto<?> deleteMember(UserDetails userDetails) {
+        Member member = memberRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.SIGNOUT_NOT_FOUND_EMAIL));
 
         member.deleteMember();
@@ -67,10 +67,9 @@ public class MemberService {
         if(passwordEncoder.matches(loginRequesrDto.getPassword(),member.getUserPassword())){
             String accessToken = jwtTokenProvider.createAccessToken(member);
             String refreshToken = jwtTokenProvider.createRefreshToken(member);
-
             RefreshToken token;
-            boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
 
+            boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
             if (tokenExistCheck){
                 token = refreshTokenRepository.findByMemberIdx(member.getId())
                         .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN));
