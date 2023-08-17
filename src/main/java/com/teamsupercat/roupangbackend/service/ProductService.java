@@ -1,5 +1,6 @@
 package com.teamsupercat.roupangbackend.service;
 
+
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
@@ -16,16 +17,26 @@ import com.teamsupercat.roupangbackend.repository.ProductsCategoryRepository;
 import com.teamsupercat.roupangbackend.repository.SellerRepository;
 import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
+
+import com.teamsupercat.roupangbackend.entity.Product;
+import com.teamsupercat.roupangbackend.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -160,7 +171,7 @@ public class ProductService {
 
 
 
-}
+
 
 
 
@@ -189,4 +200,36 @@ public class ProductService {
 //        return newSeller.getId();
 //
 //                }
+
+
+    //private final ProductMapper productMapper;
+
+    public Page<Product> findItemsPagination(String order, Pageable pageable){
+
+        //최신순
+        Page<Product> productEntities = productRepository.findAll(pageable);
+
+        if(order.equals("priceAsc")){ //가격 오름차순
+            productEntities = productRepository.findProductByOrderByPrice(pageable);
+        }
+        else if(order.equals("priceDesc")){ //가격 내림차순
+            productEntities = productRepository.findProductByOrderByPriceDesc(pageable);
+        }
+
+        //인기순(판매량순)
+
+        //return productEntities.map(productMapper.INSTANCE::ProductEntityToProductResponse);
+        return productEntities;
+    }
+
+    public Page<Product> findItemsByCategoryIdxPagination(Integer categoryIdx, Pageable pageable) {
+        Page<Product> productEntities = productRepository.findProductByProductsCategoryIdxId(categoryIdx, pageable);
+        return productEntities;
+    }
+
+    public Map<String, Object> findProductsByOption(List<String> options, Pageable pageable) {
+        //옵션디테일 레포지토리에서 options에 해당하는 상품을 각각 찾아서 교집합 찾기
+        return new HashMap<>();
+    }
+}
 
