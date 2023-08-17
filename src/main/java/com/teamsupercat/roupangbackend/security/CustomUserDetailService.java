@@ -18,18 +18,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Configuration
 @Service
-
 public class CustomUserDetailService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private String inputPassword;
-
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
     public void setInputPassword(String inputPassword) {
         this.inputPassword = inputPassword;
     }
 
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 

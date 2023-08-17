@@ -1,5 +1,6 @@
 package com.teamsupercat.roupangbackend.security;
 
+import com.teamsupercat.roupangbackend.entity.Member;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,6 +23,7 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
     private String secretKey = "Super-Coding";
+
     final private UserDetailsService userDetailsService;
     final long AccessTokenValidMilliSecond =  1000L * 60 * 60; // 1시간
     final long RefreshTokenValidMilliSecond = 1000L *60 * 60 *24 * 7; //  1주일
@@ -34,9 +36,12 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("Authorization");
     }
-    public String createAccessToken(String email,Integer id){
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("idx",id);
+
+    public String createAccessToken(Member member){
+        Claims claims = Jwts.claims().setSubject(member.getEmail());
+        claims.put("idx",member.getId());
+        claims.put("nickname",member.getNickname());
+        claims.put("phone_number",member.getPhoneNumber());
         Date now = new Date();
         return Jwts.builder()
                 .setIssuedAt(now)
@@ -44,9 +49,13 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
-    public String createRefreshToken(String email,Integer id){
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("idx", id);
+
+    public String createRefreshToken(Member member){
+        Claims claims = Jwts.claims().setSubject(member.getEmail());
+        claims.put("idx", member.getId());
+        claims.put("idx",member.getId());
+        claims.put("nickname",member.getNickname());
+        claims.put("phone_number",member.getPhoneNumber());
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
