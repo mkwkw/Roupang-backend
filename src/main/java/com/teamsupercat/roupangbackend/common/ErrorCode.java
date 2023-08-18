@@ -63,6 +63,7 @@ public enum ErrorCode {
     // 결제
     NOT_STOCK_PRODUCT(HttpStatus.NOT_FOUND, "개 재고가 부족하여 구매할 수 없습니다."),
 
+    LACKING_USER_POINT(HttpStatus.NOT_FOUND, "원 입니다 포인트가 부족합니다."),
     // 개별주문 테이블
     NOT_FOUND_SINGLE_ORDER(HttpStatus.NOT_FOUND, "개별주문 항목을 가져오지 못했습니다."),
 
