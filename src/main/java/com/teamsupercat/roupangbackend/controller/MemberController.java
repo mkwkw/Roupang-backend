@@ -1,6 +1,7 @@
 package com.teamsupercat.roupangbackend.controller;
 
 import com.teamsupercat.roupangbackend.common.ResponseDto;
+import com.teamsupercat.roupangbackend.dto.member.DuplicateCheckDto;
 import com.teamsupercat.roupangbackend.dto.member.LoginRequesrDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
 import com.teamsupercat.roupangbackend.service.MemberService;
@@ -39,5 +40,10 @@ public class MemberController {
     public ResponseDto<?> logout(@AuthenticationPrincipal UserDetails userDetails) {
         String memberEmail = userDetails.getUsername();
         return memberService.logoutMember(memberEmail);
+    }
+
+    @PostMapping(value = "check")
+    public ResponseDto<?> duplicateCheck(@RequestBody DuplicateCheckDto checkDto) {
+        return memberService.duplicateCheck(checkDto);
     }
 }
