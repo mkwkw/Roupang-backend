@@ -31,4 +31,11 @@ public class OptionDetail {
     @Column(name = "option_type_name_idx", nullable = false)
     private Integer optionTypeNameIdx;
 
+    public OptionDetail(Product product, String optionDetailName, Integer optionTypeIdx, Integer optionTypeNameIdx){
+        this.productIdx = product;
+        this.optionDetailName = optionDetailName;
+        this.optionTypeIdx = optionTypeIdx;
+        this.optionTypeNameIdx = optionTypeNameIdx;
+    }
+
 }

@@ -22,4 +22,8 @@ public class OptionTypeName {
     @Column(name = "option_name")
     private String optionName;
 
+    public OptionTypeName(String optionName){
+        this.optionName = optionName;
+    }
+
 }
