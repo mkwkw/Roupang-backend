@@ -27,4 +27,6 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     Page<Product> findProductByProductsCategoryIdxIdOrderByPrice(Integer categoryIdx, Pageable pageable);
 
     Page<Product> findProductByProductsCategoryIdxIdOrderByPriceDesc(Integer categoryIdx, Pageable pageable);
+
+    Product findProductById(int productIdx);
 }

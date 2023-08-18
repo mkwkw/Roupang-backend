@@ -2,6 +2,7 @@ package com.teamsupercat.roupangbackend.service;
 
 import com.teamsupercat.roupangbackend.dto.option.OptionDetailResponse;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.entity.OptionDetail;
 import com.teamsupercat.roupangbackend.entity.OptionType;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,5 +111,45 @@ public class OptionService {
         }
 
         return new PageImpl<>(productList.stream().map(product -> new ProductResponse().toDto(product)).distinct().collect(Collectors.toList()));
+    }
+
+    //TODO. option_type 테이블에 자꾸 option_type_name 컬럼이 생기는데 아직 이유를 모르겠음.
+    @Transactional
+    public Map<String, Object> registerOptionOfProduct(OptionRegisterRequest optionRegisterRequest){
+
+        int productIdx = optionRegisterRequest.getProductIdx();
+        String optionTypeName = optionRegisterRequest.getOptionTypeName();
+        List<String> optionDetailNames = optionRegisterRequest.getOptionDetailNames();
+        Integer optionTypeNameIdx = 0;
+
+        Product product = productRepository.findProductById(productIdx);
+
+        //option type name
+        Optional<OptionTypeName> optionTypeName1 = optionTypeNameRepository.findOptionTypeNameByOptionName(optionTypeName);
+
+        if(optionTypeName1.isEmpty()){
+            optionTypeNameIdx = optionTypeNameRepository.save(new OptionTypeName(optionTypeName)).getId();
+        }
+        else{
+            optionTypeNameIdx = optionTypeName1.get().getId();
+        }
+
+        //option type
+        OptionType optionType = optionTypeRepository.save(new OptionType(productIdx, optionTypeNameIdx, ""));
+
+        //option detail
+        StringBuilder optionDetailIdxSb = new StringBuilder();
+        for(String optionDetailName : optionDetailNames){
+            OptionDetail optionDetail = optionDetailRepository.save(new OptionDetail(product, optionDetailName, optionType.getId(), optionTypeNameIdx));
+            optionDetailIdxSb.append(optionDetail.getId());
+            optionDetailIdxSb.append(",");
+        }
+
+        optionDetailIdxSb.deleteCharAt(optionDetailIdxSb.length()-1);
+
+        optionType.setOptionDetailIdx(optionDetailIdxSb.toString());
+        optionTypeRepository.save(optionType);
+
+        return findOptionByProductIdx(productIdx);
     }
 }
