@@ -24,6 +24,7 @@ public class CustomExceptionHandler {
         HttpStatus httpStatus = ex.getErrorCode().getHttpStatus();
         String errMSG = ex.getErrorCode().getErrorMsg();
         String dynamicMSG = ex.getDynamicMessage();
-        return new ResponseEntity<>(ResponseDto.fail(dynamicMSG + errMSG), httpStatus);
+        String dynamicMSG2 = ex.getDynamicMessage2();
+        return new ResponseEntity<>(ResponseDto.fail(dynamicMSG + dynamicMSG2 + errMSG), httpStatus);
     }
 }

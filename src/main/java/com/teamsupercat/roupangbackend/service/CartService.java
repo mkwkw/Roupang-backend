@@ -42,7 +42,7 @@ public class CartService {
             throw new CustomException(ErrorCode.NOTFOUND_PRODUCT_STOCK);
         } else if (byproduct.getStock() <= cartChangeRequest.getAmount()) {
             // 재고보다 많이 주문했을 시 예외처리
-            throw new CustomMessageException(ErrorCode.OUT_OF_STOCK, String.valueOf(byproduct.getStock()));
+            throw new CustomMessageException(ErrorCode.OUT_OF_STOCK, "재고", String.valueOf(byproduct.getStock()));
         }
         // 장바구니에 제품 등록여부 확인
         Optional<Cart> byMemberIdAndProductId = cartRepository.findByMemberIdAndProductId(memberId, cartChangeRequest.getProductIdx());

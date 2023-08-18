@@ -19,6 +19,7 @@ public class CartAllResponse {
     private String description;
     private Long price;
     private Integer amount;
+    private Integer productStock;
     private String createdAt;
 
     public CartAllResponse toEntity(Integer memberId, Cart cart) {
@@ -33,6 +34,7 @@ public class CartAllResponse {
                 .description(cart.getProductIdx().getDescription())
                 .price(cart.getProductIdx().getPrice())
                 .amount(cart.getAmount())
+                .productStock(cart.getProductIdx().getStock())
                 .createdAt(cart.getCreatedAt().toString())
                 .build();
     }
