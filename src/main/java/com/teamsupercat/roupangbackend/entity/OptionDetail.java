@@ -27,4 +27,7 @@ public class OptionDetail {
     @Column(name = "option_type_idx", nullable = false)
     private Integer optionTypeIdx;
 
+    @Column(name = "option_type_name_idx", nullable = false)
+    private Integer optionTypeNameIdx;
+
 }

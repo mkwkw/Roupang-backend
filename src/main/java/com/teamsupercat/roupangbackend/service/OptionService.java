@@ -4,6 +4,7 @@ import com.teamsupercat.roupangbackend.dto.option.OptionDetailResponse;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.entity.OptionDetail;
 import com.teamsupercat.roupangbackend.entity.OptionType;
+import com.teamsupercat.roupangbackend.entity.OptionTypeName;
 import com.teamsupercat.roupangbackend.repository.OptionDetailRepository;
 import com.teamsupercat.roupangbackend.repository.OptionTypeNameRepository;
 import com.teamsupercat.roupangbackend.repository.OptionTypeRepository;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,5 +59,27 @@ public class OptionService {
         options.put("options", optionTypeResponseList);
 
         return options;
+    }
+
+    public Map<String, Object> findAllOption() {
+
+        Map<String, Object> answer = new HashMap<>();
+        List<OptionTypeName> optionTypeNameList = optionTypeNameRepository.findAll();
+
+        for(OptionTypeName optionTypeName : optionTypeNameList){
+            List<OptionDetail> optionDetailList = optionDetailRepository.findOptionDetailByOptionTypeNameIdx(optionTypeName.getId());
+            List<String> optionNameList = new ArrayList<>();
+
+            if(optionDetailList.size()==0){
+                optionNameList.add("선택 옵션이 없습니다.");
+            }
+            for(OptionDetail optionDetail : optionDetailList){
+                optionNameList.add(optionDetail.getOptionDetailName());
+            }
+
+            answer.put(optionTypeName.getOptionName(), optionNameList.stream().distinct().collect(Collectors.toList()));
+        }
+
+        return answer;
     }
 }
