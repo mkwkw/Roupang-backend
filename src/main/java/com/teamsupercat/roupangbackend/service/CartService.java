@@ -3,7 +3,9 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.dynamicMessageException.CustomMessageException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
+import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import com.teamsupercat.roupangbackend.dto.cart.request.CartChangeRequest;
+import com.teamsupercat.roupangbackend.dto.cart.request.RemoveCartRequest;
 import com.teamsupercat.roupangbackend.dto.cart.response.CartAllResponse;
 import com.teamsupercat.roupangbackend.entity.Cart;
 import com.teamsupercat.roupangbackend.entity.Member;
@@ -110,5 +112,22 @@ public class CartService {
         */
     }
 
+    // todo 상품 낱개 제거
+    public void removeCartItem(CustomUserDetail userDetail, RemoveCartRequest request) {
+        // 유저번호를 존재여부 확인
+        Member member = memberRepository.findById(userDetail.getMemberIdx()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        // 삭제할 상품 번호 확인
+        Product product = productRepository.findById(request.getProductDel()).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+        // 해당 유저의 삭제할 상품이 있는지 검색
+        Cart byMemberIdxAndProductIdxAndIsDeletedFalse = cartRepository.findByMemberIdxAndProductIdxAndIsDeletedFalse(member, product);
 
+        // 검색한 물품이 없으면 예외처리
+        if (byMemberIdxAndProductIdxAndIsDeletedFalse == null) {
+            throw new CustomException(ErrorCode.PRODUCT_NOTFOUND);
+        }
+
+        // 장바구니에서 해당 유저의 선택상품의 isdeleted를 true로 바꿔줌
+        cartRepository.updateIsDeletedByMemberIdxAndProductIdx(member, product);
+
+    }
 }
