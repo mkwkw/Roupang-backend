@@ -1,11 +1,12 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Getter
 @Setter
