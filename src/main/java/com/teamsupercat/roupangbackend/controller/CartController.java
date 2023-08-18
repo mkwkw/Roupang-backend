@@ -3,6 +3,7 @@ package com.teamsupercat.roupangbackend.controller;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.ResponseDto;
+import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import com.teamsupercat.roupangbackend.dto.cart.request.CartChangeRequest;
 import com.teamsupercat.roupangbackend.dto.cart.response.CartAllResponse;
 import com.teamsupercat.roupangbackend.service.CartService;
@@ -10,6 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,8 +30,8 @@ public class CartController {
 
     @ApiOperation(value = "장바구니 상품추가")
     @PostMapping
-    public ResponseDto<?> cartProductPlus(@RequestBody CartChangeRequest cartChangeRequest) {
-        Integer memberId = 1;
+    public ResponseDto<?> cartProductPlus( CustomUserDetail userDetails, @RequestBody CartChangeRequest cartChangeRequest) {
+        Integer memberId = userDetails.getMemberIdx();
         if (hasNullFieldsCartPlusRequest(cartChangeRequest)) {
             throw new CustomException(ErrorCode.NULL_FIELDS_REQUEST);
         }
@@ -46,8 +48,8 @@ public class CartController {
 
     @ApiOperation(value = "장바구니 상품 비우기")
     @PostMapping("/cart_del")
-    public ResponseDto<?> cartProductDel() {
-        Integer memberId = 1;
+    public ResponseDto<?> cartProductDel(@AuthenticationPrincipal CustomUserDetail userDetails) {
+        Integer memberId = userDetails.getMemberIdx();
         cartService.cartProductDel(memberId);
 
         return ResponseDto.success("나의 장바구니 물품을 모두 삭제했습니다.");
@@ -56,9 +58,9 @@ public class CartController {
 
     @ApiOperation(value = "장바구니 전체조회")
     @GetMapping
-    public List<CartAllResponse> cartAllList() {
-        Integer memberId = 1;
-
+    public List<CartAllResponse> cartAllList(@AuthenticationPrincipal CustomUserDetail userDetails) {
+        Integer memberId = userDetails.getMemberIdx();
+        userDetails.getMemberIdx();
         return cartService.cartAllList(memberId);
     }
 

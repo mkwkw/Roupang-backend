@@ -1,16 +1,13 @@
 package com.teamsupercat.roupangbackend.controller;
 
 import com.teamsupercat.roupangbackend.common.ResponseDto;
-import com.teamsupercat.roupangbackend.dto.cart.request.PurchaseItemRequest;
 import com.teamsupercat.roupangbackend.dto.viewhistory.request.ViewHistoryRequest;
 import com.teamsupercat.roupangbackend.dto.viewhistory.response.ViewHistoryResponse;
-import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.service.ViewHistoryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

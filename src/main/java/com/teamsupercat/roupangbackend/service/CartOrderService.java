@@ -111,14 +111,21 @@ public class CartOrderService {
         Long minusPoint = member.getUserPoint() - productAllAmount;
         bymember.setUserPoint(minusPoint);
 
+        // 결제 후 유저포인트가 0보다 많은지 확인
+        if (minusPoint < 0) {
+            throw new CustomMessageException(ErrorCode.LACKING_USER_POINT, "유저 잔여 포인트", String.valueOf(member.getUserPoint()));
+        }
+
+
         // 장바구니 상품마다 돌면서 구매수량을 뽑아 상품의 재고를 차감한다
-        // 차감 시 재고가 0보다 적으면 예외처리
+        // 차감 시 재고가 0이랑 같거나 적으면 적으면 예외처리
         for (GroupedOrder order : groupedOrderList) {
             Product product = productRepository.findById(order.getSingleOrders().getProductIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_PRODUCT));
 
             Integer stock = order.getSingleOrders().getProductIdx().getStock();
             Integer amount = order.getSingleOrders().getAmount();
 
+            // 상품 제고 수량 파악해서 재고가 없으면 예외처리
             Integer updatedStock = stock - amount;
             if (updatedStock < 0) {
                 throw new CustomMessageException(ErrorCode.NOT_STOCK_PRODUCT, product.getProductName() + " 상품의 재고수량:", String.valueOf(stock));
