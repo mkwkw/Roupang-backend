@@ -6,19 +6,14 @@ import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.dto.seller.SellerRequest;
-import com.teamsupercat.roupangbackend.entity.Member;
-import com.teamsupercat.roupangbackend.entity.Product;
-import com.teamsupercat.roupangbackend.entity.ProductsCategory;
-import com.teamsupercat.roupangbackend.entity.Seller;
-import com.teamsupercat.roupangbackend.repository.MemberRepository;
-import com.teamsupercat.roupangbackend.repository.ProductRepository;
-import com.teamsupercat.roupangbackend.repository.ProductsCategoryRepository;
-import com.teamsupercat.roupangbackend.repository.SellerRepository;
+import com.teamsupercat.roupangbackend.entity.*;
+import com.teamsupercat.roupangbackend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -36,6 +31,7 @@ public class ProductService {
     private final SellerRepository sellerRepository;
     private final MemberRepository memberRepository;
     private final ProductsCategoryRepository productsCategoryRepository;
+    private final SingleOrderRepository singleOrderRepository;
 
     //todo 1. 판매자 등록
     public Integer saveAsSeller(SellerRequest sellerRequest) {
@@ -93,6 +89,7 @@ public class ProductService {
     }
 
     //todo 3. 판매자의 판매 물품 상세 조회(구매자의 그냥 물품 상세 조회)
+    @Transactional
     public ProductResponse getProductOne(Integer productId) throws ParseException {
 
         //product 찾기, 없으면 에러
@@ -101,11 +98,19 @@ public class ProductService {
         //product 카테고리 찾기, 없으면 에러(영속화)
         ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOTFOUND));
 
+        //singerOrder 개별 주문 결제건 리스트 찾기
+        List<SingleOrder> singleOrders = singleOrderRepository.findByProductIdx(product);
+
+        //product의 재고에서 개별 결제건들의 amount들을 빼서 product 재고의 남은 양을 확인한다.
+        Integer totalSoldAmount = singleOrders.stream().mapToInt(SingleOrder::getAmount).sum();
+        Integer remainingStock = product.getStock() - totalSoldAmount;
+
+        //product의 재고를 수정
+        product.setStock(remainingStock);
 
         ProductResponse productResponse = new ProductResponse();
 
         return productResponse.toDto(product);
-
 
     }
 
@@ -133,7 +138,7 @@ public class ProductService {
     /* page: 현재 페이지, 0부터 시작한다.
        size: 한 페이지에 노출할 데이터 건수 */
 
-    public Page<AllProductsResponse> getProductsList(String order, Pageable pageable, Integer userId) {
+    public  List<AllProductsResponse> getProductsList(String order, Pageable pageable, Integer userId) {
         //멤버 찾기 없으면 에러
         Member member = memberRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
 
@@ -171,6 +176,8 @@ public class ProductService {
                 //판매순
 
 
+
+
                 //Entity -> Dto로 변환
                 allProductsResponses = productList.map(product -> AllProductsResponse.fromProduct(product));
 
@@ -180,7 +187,9 @@ public class ProductService {
 
         } else throw new CustomException(ErrorCode.SELLER_ONLY);
 
-        return allProductsResponses;
+       List<AllProductsResponse> contentList = allProductsResponses.getContent();
+
+        return contentList;
     }
 
 

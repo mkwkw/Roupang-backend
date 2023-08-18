@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -56,7 +57,7 @@ public class ProductController {
     }
 
     @ApiOperation(value= "판매 물품 상세 조회 ", notes = "물품 상세 조회")
-    @GetMapping("/seller/products/{product_id}")
+    @GetMapping("/products/{product_id}")
     public ResponseDto<Object> getProductOne(@PathVariable("product_id") Integer productId) throws ParseException {
 
         ProductResponse productResponse = productService.getProductOne(productId);
@@ -72,7 +73,7 @@ public class ProductController {
     public ResponseDto<Object> getProductsList(@RequestParam("order") String order, Pageable pageable){
         Integer userId = 1;
 
-        Page<AllProductsResponse> productsList = productService.getProductsList(order, pageable, userId);
+        List<AllProductsResponse> productsList = productService.getProductsList(order, pageable, userId);
 
         return new ResponseDto<>(true, "판매자의 판매 물품 내역 조회에 성공하였습니다.", productsList);
     }
