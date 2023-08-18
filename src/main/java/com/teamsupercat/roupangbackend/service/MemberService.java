@@ -4,7 +4,7 @@ import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.ResponseDto;
 import com.teamsupercat.roupangbackend.dto.member.DuplicateCheckDto;
-import com.teamsupercat.roupangbackend.dto.member.LoginRequesrDto;
+import com.teamsupercat.roupangbackend.dto.member.LoginRequestDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.entity.RefreshToken;
@@ -60,11 +60,11 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> loginMember(LoginRequesrDto loginRequesrDto, HttpServletResponse response) {
-        Member member = memberRepository.findByEmail(loginRequesrDto.getEmail())
+    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
 
-        if(passwordEncoder.matches(loginRequesrDto.getPassword(),member.getUserPassword())){
+        if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
             String accessToken = jwtTokenProvider.createAccessToken(member);
             String refreshToken = jwtTokenProvider.createRefreshToken(member);
             RefreshToken token;
