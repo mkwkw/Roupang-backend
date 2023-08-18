@@ -109,6 +109,12 @@ public class ProductController {
         return ResponseDto.success(productCategoryService.findProductCategoryDtoList());
     }
 
+    @ApiOperation("모든 옵션 정보 조회")
+    @GetMapping("/products/option")
+    public ResponseDto<?> findAllOption(){
+        return ResponseDto.success(optionService.findAllOption());
+    }
+
 //    @ApiOperation("옵션으로 물품 조회")
 //    @GetMapping("/products/option/search")
 //    public ResponseDto<?> findProductsByOption(@RequestParam("option-name") List<String> options, Pageable pageable){

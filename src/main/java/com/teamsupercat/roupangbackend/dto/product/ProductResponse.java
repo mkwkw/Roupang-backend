@@ -32,9 +32,17 @@ public class ProductResponse {
     private List<OptionTypeResponse> options;
 
 
-    public ProductResponse toDto(Product product) throws ParseException {
+    public ProductResponse toDto(Product product){
 
-        return ProductResponse.builder()
+        String endDateStr;
+        try{
+           endDateStr = DateUtils.convertToString(product.getSalesEndDate());
+        }
+        catch (ParseException e){
+            endDateStr = "판매 종료 날짜가 없습니다.";
+        }
+
+        ProductResponse productResponse = ProductResponse.builder()
                 .productIdx(product.getId())
                 .productName(product.getProductName())
                 .price(product.getPrice())
@@ -42,9 +50,11 @@ public class ProductResponse {
                 .description(product.getDescription())
                 .descriptionImg(product.getDescriptionImg())
                 .productImg(product.getProductImg())
-                .salesEndDate(DateUtils.convertToString(product.getSalesEndDate()))
+                .salesEndDate(endDateStr)
                 .categoryName(product.getProductsCategoryIdx().getCategoryName())
                 .build();
+
+        return productResponse;
     }
 
     public ProductResponse toDto2(Product product, List<OptionTypeResponse> optionTypeResponseList) throws ParseException {
