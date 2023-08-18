@@ -22,8 +22,8 @@ public class OptionType {
     @Column(name = "product_idx", nullable = false)
     private Integer productIdx;
 
-    @Column(name = "option_type_name", nullable = false)
-    private String optionTypeName;
+    @Column(name = "option_type_name_idx", nullable = false)
+    private Integer optionTypeNameIdx;
 
     @Column(name = "option_detail_idx")
     private String optionDetailIdx;

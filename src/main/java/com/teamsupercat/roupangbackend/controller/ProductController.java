@@ -96,7 +96,7 @@ public class ProductController {
         return ResponseDto.success(products);
     }
 
-    @ApiOperation("product_idx로 물품 옵션 상세 조회")
+    @ApiOperation("product_idx로 물품 상세 옵션 조회")
     @GetMapping("/products/option/{product_idx}")
     public ResponseDto<?> findOptionByProductIdx(@PathVariable("product_idx") Integer productIdx){
         Map<String, Object> options = optionService.findOptionByProductIdx(productIdx);
