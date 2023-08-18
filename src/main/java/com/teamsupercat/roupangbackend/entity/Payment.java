@@ -21,7 +21,7 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "grouped_order_idx", nullable = false)
-    private SingleOrder groupedOrderIdx;
+    private GroupedOrder groupedOrderIdx;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "payment_methods_idx", nullable = false)
