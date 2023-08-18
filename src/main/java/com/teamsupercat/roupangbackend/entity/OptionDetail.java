@@ -18,8 +18,9 @@ public class OptionDetail {
     @Column(name = "idx", nullable = false)
     private Integer id;
 
-    @Column(name = "product_idx", nullable = false)
-    private Integer productIdx;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_idx", nullable = false)
+    private Product productIdx;
 
     @Column(name = "option_detail_name", nullable = false)
     private String optionDetailName;
