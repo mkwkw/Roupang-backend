@@ -20,6 +20,8 @@ public class CustomUserDetail implements UserDetails {
 
     private List<String> authority;
 
+    private Integer memberIdx;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {   // 해당 유저 롤 부여
@@ -55,5 +57,9 @@ public class CustomUserDetail implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    public Integer getIdx(){
+        return this.memberIdx;
     }
 }

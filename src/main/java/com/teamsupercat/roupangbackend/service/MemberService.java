@@ -3,7 +3,8 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.ResponseDto;
-import com.teamsupercat.roupangbackend.dto.member.LoginRequesrDto;
+import com.teamsupercat.roupangbackend.dto.member.DuplicateCheckDto;
+import com.teamsupercat.roupangbackend.dto.member.LoginRequestDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.entity.RefreshToken;
@@ -59,11 +60,11 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<?> loginMember(LoginRequesrDto loginRequesrDto, HttpServletResponse response) {
-        Member member = memberRepository.findByEmail(loginRequesrDto.getEmail())
+    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
 
-        if(passwordEncoder.matches(loginRequesrDto.getPassword(),member.getUserPassword())){
+        if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
             String accessToken = jwtTokenProvider.createAccessToken(member);
             String refreshToken = jwtTokenProvider.createRefreshToken(member);
             RefreshToken token;
@@ -96,5 +97,24 @@ public class MemberService {
         refreshToken.deleteToken();
 
         return ResponseDto.success("로그아웃에 성공하였습니다.");
+    }
+
+    public ResponseDto<?> duplicateCheck(DuplicateCheckDto checkDto) {
+        String eamil = checkDto.getEmail();
+        String nickname = checkDto.getNickname();
+
+        if(eamil != null){
+            boolean emailCheck = memberRepository.existsByEmail(eamil);
+            if(emailCheck) throw new CustomException(ErrorCode.SIGNUP_CHECK_EMAIL);
+            else return ResponseDto.success("사용가능한 이메일입니다.");
+
+        } else if (nickname != null) {
+            boolean nicknameCheck = memberRepository.existsByNickname(nickname);
+            if(nicknameCheck) throw new CustomException(ErrorCode.SIGNUP_CHECK_NICKNAME);
+            else return ResponseDto.success("사용가능한 닉네임입니다.");
+
+        }else{
+            throw new CustomException(ErrorCode.SIGNUP_CHECK_FAIL);
+        }
     }
 }
