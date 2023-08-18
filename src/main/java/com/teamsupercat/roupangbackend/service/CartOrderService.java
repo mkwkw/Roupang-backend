@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -28,9 +27,9 @@ public class CartOrderService {
     private final GroupedOrderRepository groupedOrderRepository;
     private final PaymentRepository paymentRepository;
     private final PaymentMethodRepository paymentMethodRepository;
-    // todo: 장바구니 상품값을 가져와서
 
 
+    // todo: 장바구니 상품값을 가져와서 Single_orders테이블에 넣고 idx값을 가지고 Grouped_order 테이블을 만들고 Grouped_order 테이블 고유번호를 뽑는다
     @Transactional
     public void purchaseItemsFromCart(Integer memberId, List<PurchaseItemRequest> requests) {
         Member bymember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_USER));
@@ -74,6 +73,8 @@ public class CartOrderService {
         groupedOrderRepository.saveAll(groupedOrderList);
 
         payment(groupedId, productAllAmount);
+
+
     }
 
     @Transactional
