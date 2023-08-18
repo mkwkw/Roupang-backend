@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -266,11 +265,6 @@ public class ProductService {
 
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
-    }
-
-    public Map<String, Object> findProductsByOption(List<String> options, Pageable pageable) {
-        //옵션디테일 레포지토리에서 options에 해당하는 상품을 각각 찾아서 교집합 찾기
-        return new HashMap<>();
     }
 
 

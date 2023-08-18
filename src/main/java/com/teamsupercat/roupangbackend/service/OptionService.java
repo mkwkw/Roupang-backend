@@ -2,14 +2,19 @@ package com.teamsupercat.roupangbackend.service;
 
 import com.teamsupercat.roupangbackend.dto.option.OptionDetailResponse;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
+import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.entity.OptionDetail;
 import com.teamsupercat.roupangbackend.entity.OptionType;
 import com.teamsupercat.roupangbackend.entity.OptionTypeName;
+import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.repository.OptionDetailRepository;
 import com.teamsupercat.roupangbackend.repository.OptionTypeNameRepository;
 import com.teamsupercat.roupangbackend.repository.OptionTypeRepository;
+import com.teamsupercat.roupangbackend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,6 +28,7 @@ public class OptionService {
     private final OptionTypeRepository optionTypeRepository;
     private final OptionDetailRepository optionDetailRepository;
     private final OptionTypeNameRepository optionTypeNameRepository;
+    private final ProductRepository productRepository;
 
     public Map<String, Object> findOptionByProductIdx(Integer productIdx) {
         Map<String, Object> options = new HashMap<>();
@@ -81,5 +87,27 @@ public class OptionService {
         }
 
         return answer;
+    }
+
+    public Page<ProductResponse> findProductByOptionDetailName(List<String> options){
+        //TODO. 코드 개선이 필요해보임.
+        List<Product> productList = new ArrayList<>();
+
+        for(String optionDetailName : options){
+            List<OptionDetail> optionDetailList = optionDetailRepository.findOptionDetailByOptionDetailName(optionDetailName);
+            List<Product> tempProductList = new ArrayList<>();
+            for(OptionDetail optionDetail : optionDetailList){
+                tempProductList.add(optionDetail.getProductIdx());
+            }
+
+            if(productList.isEmpty()){
+                productList = tempProductList;
+            }
+            else{
+                productList.retainAll(tempProductList);
+            }
+        }
+
+        return new PageImpl<>(productList.stream().map(product -> new ProductResponse().toDto(product)).distinct().collect(Collectors.toList()));
     }
 }
