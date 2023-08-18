@@ -6,6 +6,7 @@ import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.dto.seller.SellerRequest;
 import com.teamsupercat.roupangbackend.service.OptionService;
+import com.teamsupercat.roupangbackend.service.ProductCategoryService;
 import com.teamsupercat.roupangbackend.service.ProductService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +30,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final OptionService optionService;
+    private final ProductCategoryService productCategoryService;
 
     @ApiOperation(value= "판매자 등록", notes = "판매자로 등록하기")
     @PostMapping("/seller/signup")
@@ -99,6 +101,12 @@ public class ProductController {
     public ResponseDto<?> findOptionByProductIdx(@PathVariable("product_idx") Integer productIdx){
         Map<String, Object> options = optionService.findOptionByProductIdx(productIdx);
         return ResponseDto.success(options);
+    }
+
+    @ApiOperation("모든 카테고리 조회")
+    @GetMapping("/products/category")
+    public ResponseDto<?> findAllCategory(){
+        return ResponseDto.success(productCategoryService.findProductCategoryDtoList());
     }
 
 //    @ApiOperation("옵션으로 물품 조회")
