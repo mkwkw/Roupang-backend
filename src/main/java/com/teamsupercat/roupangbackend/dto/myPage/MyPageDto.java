@@ -16,6 +16,7 @@ public class MyPageDto {
     @AllArgsConstructor
     public static class GetMyPageRequest {
         private Integer memberIdx;
+        private String email;
     }
 
 
@@ -26,6 +27,7 @@ public class MyPageDto {
     @AllArgsConstructor
     public static class MyPageResponse {
 
+        private Integer memberIdx;
         private String nickname;
         private String phoneNumber;
         private String email;
@@ -43,6 +45,7 @@ public class MyPageDto {
         public static MyPageResponse toResponse(Member member){
 
             return MyPageResponse.builder()
+                    .memberIdx(member.getId())
                     .nickname(member.getNickname())
                     .phoneNumber(member.getPhoneNumber())
                     .email(member.getEmail())
