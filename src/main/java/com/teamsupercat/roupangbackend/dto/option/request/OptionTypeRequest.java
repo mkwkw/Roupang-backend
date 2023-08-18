@@ -1,4 +1,4 @@
-package com.teamsupercat.roupangbackend.dto.option;
+package com.teamsupercat.roupangbackend.dto.option.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,10 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OptionTypeResponse {
+public class OptionTypeRequest {
 
     private Integer optionTypeIdx;
-    private Integer optionTypeNameIdx;
     private String optionTypeName;
-    private List<OptionDetailResponse> optionDetails;
+    private List<OptionDetailRequest> optionDetails;
+
 }
