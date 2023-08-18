@@ -243,14 +243,7 @@ public class ProductService {
         //TODO. 인기순(판매량순)
 
 
-        return productEntities.map(product -> {
-            try {
-                return new ProductResponse().toDto(product);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            return new ProductResponse();
-        });
+        return productEntities.map(product -> new ProductResponse().toDto(product));
         //return productEntities.map(productMapper.INSTANCE::ProductEntityToProductResponse);
         //return productEntities;
     }
@@ -272,14 +265,7 @@ public class ProductService {
         //TODO. 인기순(판매량순)
 
 
-        return productEntities.map(product -> {
-            try {
-                return new ProductResponse().toDto(product);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            return new ProductResponse();
-        });
+        return productEntities.map(product -> new ProductResponse().toDto(product));
     }
 
     public Map<String, Object> findProductsByOption(List<String> options, Pageable pageable) {
