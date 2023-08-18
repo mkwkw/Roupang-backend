@@ -3,11 +3,13 @@ package com.teamsupercat.roupangbackend.dto.product;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teamsupercat.roupangbackend.common.DateUtils;
+import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.entity.Product;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
+import java.util.List;
 
 @Slf4j
 @Builder
@@ -27,6 +29,7 @@ public class ProductResponse {
     private String categoryName;
     private String productImg;
     private String salesEndDate;
+    private List<OptionTypeResponse> options;
 
 
     public ProductResponse toDto(Product product) throws ParseException {
@@ -41,6 +44,22 @@ public class ProductResponse {
                 .productImg(product.getProductImg())
                 .salesEndDate(DateUtils.convertToString(product.getSalesEndDate()))
                 .categoryName(product.getProductsCategoryIdx().getCategoryName())
+                .build();
+    }
+
+    public ProductResponse toDto2(Product product, List<OptionTypeResponse> optionTypeResponseList) throws ParseException {
+
+        return ProductResponse.builder()
+                .productIdx(product.getId())
+                .productName(product.getProductName())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .description(product.getDescription())
+                .descriptionImg(product.getDescriptionImg())
+                .productImg(product.getProductImg())
+                .salesEndDate(DateUtils.convertToString(product.getSalesEndDate()))
+                .categoryName(product.getProductsCategoryIdx().getCategoryName())
+                .options(optionTypeResponseList)
                 .build();
     }
 

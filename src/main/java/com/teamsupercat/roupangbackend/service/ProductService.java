@@ -2,6 +2,7 @@ package com.teamsupercat.roupangbackend.service;
 
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
+import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
@@ -32,6 +33,8 @@ public class ProductService {
     private final MemberRepository memberRepository;
     private final ProductsCategoryRepository productsCategoryRepository;
     private final SingleOrderRepository singleOrderRepository;
+    private final OptionService optionService;
+    private final OptionTypeRepository optionTypeRepository;
 
     //todo 1. 판매자 등록
     public Integer saveAsSeller(SellerRequest sellerRequest) {
@@ -80,13 +83,31 @@ public class ProductService {
 
             Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
 
+            //판매 물품
             Product product = productCreateRequest.toEntity(productCreateRequest, sellerFound);
 
             productRepository.save(product);
 
+//            Product savedProduct = productRepository.save(product);
+
+            //todo 판매 물품 옵션
+//            List<OptionType> optionTypes = optionInsert(productCreateRequest.getOptions(), savedProduct);
+//
+//
+//            optionTypeRepository.saveAll(optionTypes);
+
+
         } else throw new CustomException(ErrorCode.SELLER_ONLY);
 
     }
+
+//    private List<OptionType> optionInsert(List<OptionTypeRequest> options, Product savedProduct) {
+//         List<OptionType> optionTypes = new ArrayList<>();
+//
+//
+//
+//
+//    }
 
     //todo 3. 판매자의 판매 물품 상세 조회(구매자의 그냥 물품 상세 조회)
     @Transactional
@@ -108,9 +129,21 @@ public class ProductService {
         //product의 재고를 수정
         product.setStock(remainingStock);
 
+        //optionService에서 options 불러오기
+        Map<String, Object> options = optionService.findOptionByProductIdx(productId);
+
+        List<OptionTypeResponse> optionTypeResponseList;
+
+        //options Map에서 options의 key, value만 사용한다.
+        if (options.containsKey("options")){
+
+            optionTypeResponseList = (List<OptionTypeResponse>) options.get("options");
+
+        } else return null;
+
         ProductResponse productResponse = new ProductResponse();
 
-        return productResponse.toDto(product);
+        return productResponse.toDto2(product, optionTypeResponseList);
 
     }
 
@@ -180,11 +213,8 @@ public class ProductService {
 
                 //Entity -> Dto로 변환
                 allProductsResponses = productList.map(product -> AllProductsResponse.fromProduct(product));
-
                 //allProductsResponses = productList.map(product -> new AllProductsResponse());
-
             }
-
         } else throw new CustomException(ErrorCode.SELLER_ONLY);
 
        List<AllProductsResponse> contentList = allProductsResponses.getContent();
