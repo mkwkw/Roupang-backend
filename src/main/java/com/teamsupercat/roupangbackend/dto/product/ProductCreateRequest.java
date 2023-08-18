@@ -3,16 +3,14 @@ package com.teamsupercat.roupangbackend.dto.product;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teamsupercat.roupangbackend.common.DateUtils;
-import com.teamsupercat.roupangbackend.entity.Member;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionTypeRequest;
 import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.entity.ProductsCategory;
 import com.teamsupercat.roupangbackend.entity.Seller;
-import io.swagger.models.auth.In;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.List;
 
 @Builder
 @Getter
@@ -30,6 +28,7 @@ public class ProductCreateRequest {
     private Integer categoryIdx;
     private String productImg;
     private String descriptionImg;
+    private List<OptionTypeRequest> options;
 
 
     public Product toEntity(ProductCreateRequest productCreateRequest, Seller seller) throws ParseException {
@@ -47,4 +46,15 @@ public class ProductCreateRequest {
                 .build();
 
     }
+
+//    public List<OptionType> toEntity2(ProductCreateRequest productCreateRequest, Seller sellerFound) {
+//        return OptionType.builder()
+//                .id(options.)
+//                .productIdx()
+//                .optionTypeName()
+//                .optionDetailIdx()
+//                .build();
+//
+//
+//    }
 }

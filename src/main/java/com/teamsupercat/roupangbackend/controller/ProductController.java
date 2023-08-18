@@ -72,7 +72,7 @@ public class ProductController {
 
     @ApiOperation(value= "판매 물품들 내역 조회 ", notes = "판매자의 판매 물품 리스트 조회")
     @GetMapping("/seller/products")
-    public ResponseDto<Object> getProductsList(@RequestParam("order") String order, Pageable pageable){
+    public ResponseDto<Object> getProductsList(@RequestParam(value = "order", required = false) String order, Pageable pageable){
         Integer userId = 1;
 
         List<AllProductsResponse> productsList = productService.getProductsList(order, pageable, userId);
