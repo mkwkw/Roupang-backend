@@ -27,7 +27,7 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
     @Transactional
     @Modifying
     @Query("update Cart c set c.isDeleted = true where c.memberIdx = :memberIdx and c.productIdx = :productIdx")
-    int updateIsDeletedByMemberIdxAndProductIdx(Member memberIdx, Product productIdx);
+    void updateIsDeletedByMemberIdxAndProductIdx(Member memberIdx, Product productIdx);
 
     @Query("select c from Cart c where c.memberIdx = :memberIdx and c.productIdx = :productIdx and c.isDeleted = false")
     Optional<Cart> findByMemberIdxAndProductIdxAndIsDeletedFalse(Member memberIdx, Product productIdx);

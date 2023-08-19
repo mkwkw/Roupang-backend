@@ -63,7 +63,7 @@ public class CartController {
     // 헤더가 존재하는지 확인 후 존재한다면 유저를 검색하여 인증하고 인증된 유저객체를 반환
     private Member authMemberCheck(CustomUserDetail userDetail, HttpServletRequest servletRequest) {
         if (servletRequest.getHeader("authorization") == null)
-            throw new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_TOKEN);
+            throw new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN);
         return memberRepository.findById(userDetail.getMemberIdx()).orElseThrow(() -> new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_TOKEN));
     }
 
