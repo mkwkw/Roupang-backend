@@ -66,8 +66,19 @@ public enum ErrorCode {
     // 개별주문 테이블
     NOT_FOUND_SINGLE_ORDER(HttpStatus.NOT_FOUND, "개별주문 항목을 가져오지 못했습니다."),
 
-    ;
 
+
+    // 리프래시 토큰
+    REFRESHTOKEN_NOT_FOUND_MEMBERIDX(HttpStatus.BAD_REQUEST, "해당 유저의 식별값을 찾을 수 없습니다."),
+
+    REFRESHTOKEN_NOT_VALID_TOKEN(HttpStatus.BAD_REQUEST,"해당 토큰은 유효하지 않습니다."),
+
+    REFRESHTOKEN_NOT_FOUND_EMAIL(HttpStatus.BAD_REQUEST,"해당 이메일은 존재하지 않습니다."),
+
+    REFRESHTOKEN_NOT_FOUND_TOKEN(HttpStatus.BAD_REQUEST,"맴버에 해당하는 토큰을 찾을수 없습니다."),
+
+    REFRESHTOKEN_REFRESH_FAILED(HttpStatus.BAD_REQUEST,"토큰 재발급의 실패 하였습니다")
+            ;
     private final HttpStatus httpStatus;
     private final String errorMsg;
 
