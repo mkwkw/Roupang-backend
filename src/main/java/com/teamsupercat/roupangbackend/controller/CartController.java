@@ -54,7 +54,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "장바구니 상품 비우기")
-    @DeleteMapping("/cart_del")
+    @DeleteMapping
     public ResponseDto<?> cartProductDel(@AuthenticationPrincipal CustomUserDetail userDetail, HttpServletRequest servletRequest) {
         cartService.cartProductDel(authMemberCheck(userDetail, servletRequest));
         return ResponseDto.success("나의 장바구니 물품을 모두 삭제했습니다.");

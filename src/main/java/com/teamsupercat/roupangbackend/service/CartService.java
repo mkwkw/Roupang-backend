@@ -83,7 +83,7 @@ public class CartService {
 
         // 장바구니에 상품이 담겨있지 않으면 예외처리
         if (optionalCartProduct.isEmpty()) {
-            throw new CustomException(ErrorCode.PRODUCT_NOTFOUND);
+            throw new CustomException(ErrorCode.CART_NOT_PRODUCT);
         }
 
         // 해당 상품번호를 가진 아이템을 장바구니에서 삭제
@@ -103,7 +103,7 @@ public class CartService {
         }
 
         // 장바구니 상품을 하나씩 논리삭제
-        myCartList.stream().forEach(cart -> cart.setIsDeleted(true));
+        myCartList.forEach(cart -> cart.setIsDeleted(true));
 
         // 삭제가 완료된 상품을 장바구니에 저장
         cartRepository.saveAll(myCartList);
