@@ -7,15 +7,17 @@ import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import com.teamsupercat.roupangbackend.dto.cart.request.CartChangeRequest;
 import com.teamsupercat.roupangbackend.dto.cart.request.RemoveCartRequest;
 import com.teamsupercat.roupangbackend.dto.cart.response.CartAllResponse;
+import com.teamsupercat.roupangbackend.entity.Member;
+import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import com.teamsupercat.roupangbackend.service.CartService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -28,56 +30,47 @@ import java.util.stream.Stream;
 public class CartController {
 
     private final CartService cartService;
-
+    private final MemberRepository memberRepository;
 
     @ApiOperation(value = "장바구니 상품추가")
     @PostMapping
-    public ResponseDto<?> cartProductPlus(@AuthenticationPrincipal CustomUserDetail userDetails, @RequestBody CartChangeRequest cartChangeRequest) {
-        Integer memberId = userDetails.getMemberIdx();
-        if (hasNullFieldsCartPlusRequest(cartChangeRequest)) {
-            throw new CustomException(ErrorCode.NULL_FIELDS_REQUEST);
-        }
-        cartService.cartProductPlus(memberId, cartChangeRequest);
-
+    public ResponseDto<?> cartProductPlus(@AuthenticationPrincipal CustomUserDetail userDetail, HttpServletRequest servletRequest, @RequestBody CartChangeRequest cartChangeRequest) {
+        hasNullFieldsCartPlusRequest(cartChangeRequest);
+        cartService.cartProductPlus(authMemberCheck(userDetail, servletRequest), cartChangeRequest);
         return ResponseDto.success("상품 및 수량이 장바구니에 등록, 수정되었습니다.");
     }
 
-    // request 객체에서 비어있는 값이 있는지 확인하는 코드
-    private boolean hasNullFieldsCartPlusRequest(CartChangeRequest request) {
-        return Stream.of(request.getProductIdx(), request.getAmount()).anyMatch(Objects::isNull);
-    }
-
-    //    @ApiOperation(value = "장바구니 전체조회")
-//    @GetMapping
-//    public List<CartAllResponse> cartAllList(@AuthenticationPrincipal CustomUserDetail userDetails) {
-//        Integer memberId = userDetails.getMemberIdx();
-//        userDetails.getMemberIdx();
-//        return cartService.cartAllList(memberId);
-//    }
     @ApiOperation(value = "장바구니 전체조회")
     @GetMapping
-    public ResponseDto<List<CartAllResponse>> cartAllList(@AuthenticationPrincipal CustomUserDetail userDetails) {
-        Integer memberId = userDetails.getMemberIdx();
-        userDetails.getMemberIdx();
-
-        return ResponseDto.success(cartService.cartAllList(memberId));
+    public ResponseDto<List<CartAllResponse>> cartAllList(@AuthenticationPrincipal CustomUserDetail userDetail, HttpServletRequest servletRequest) {
+        return ResponseDto.success(cartService.cartAllList(authMemberCheck(userDetail, servletRequest)));
     }
 
     @ApiOperation(value = "장바구니 낱개 제거")
     @PatchMapping
-    public ResponseDto<?> removeCartItem(@AuthenticationPrincipal CustomUserDetail userDetail, @RequestBody RemoveCartRequest RemoveCartRequest) {
-
-        cartService.removeCartItem(userDetail, RemoveCartRequest);
-        return ResponseDto.success(null);
+    public ResponseDto<?> removeCartItem(@AuthenticationPrincipal CustomUserDetail userDetail, HttpServletRequest servletRequest, @RequestBody RemoveCartRequest RemoveCartRequest) {
+        cartService.removeCartItem(authMemberCheck(userDetail, servletRequest), RemoveCartRequest);
+        return ResponseDto.success("상품이 삭제되었습니다.");
     }
 
     @ApiOperation(value = "장바구니 상품 비우기")
     @DeleteMapping("/cart_del")
-    public ResponseDto<?> cartProductDel(@AuthenticationPrincipal CustomUserDetail userDetails) {
-        Integer memberId = userDetails.getMemberIdx();
-        cartService.cartProductDel(memberId);
-
+    public ResponseDto<?> cartProductDel(@AuthenticationPrincipal CustomUserDetail userDetail, HttpServletRequest servletRequest) {
+        cartService.cartProductDel(authMemberCheck(userDetail, servletRequest));
         return ResponseDto.success("나의 장바구니 물품을 모두 삭제했습니다.");
+    }
 
+    // 헤더가 존재하는지 확인 후 존재한다면 유저를 검색하여 인증하고 인증된 유저객체를 반환
+    private Member authMemberCheck(CustomUserDetail userDetail, HttpServletRequest servletRequest) {
+        if (servletRequest.getHeader("authorization") == null)
+            throw new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_TOKEN);
+        return memberRepository.findById(userDetail.getMemberIdx()).orElseThrow(() -> new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_TOKEN));
+    }
+
+    // request 객체에서 비어있는 값이 있는지 확인하는 코드
+    private void hasNullFieldsCartPlusRequest(CartChangeRequest request) {
+        if (Stream.of(request.getProductIdx(), request.getAmount()).anyMatch(Objects::isNull)) {
+            throw new CustomException(ErrorCode.NULL_FIELDS_REQUEST);
+        }
     }
 }
