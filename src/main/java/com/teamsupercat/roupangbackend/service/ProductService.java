@@ -6,7 +6,6 @@ import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
-import com.teamsupercat.roupangbackend.dto.seller.SellerRequest;
 import com.teamsupercat.roupangbackend.entity.*;
 import com.teamsupercat.roupangbackend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +33,15 @@ public class ProductService {
     private final SingleOrderRepository singleOrderRepository;
     private final OptionService optionService;
     private final OptionTypeRepository optionTypeRepository;
+    private final OptionDetailRepository optionDetailRepository;
 
     //todo 1. 판매자 등록
-    public Integer saveAsSeller(SellerRequest sellerRequest) {
+    public Integer saveAsSeller(Integer memberId) {
 
-        //요청의 id를 넣고 멤버 찾기 없으면 에러
-        Optional<Member> optionalMember = memberRepository.findById(sellerRequest.getId());
+        //memberId를 넣고 멤버 찾기 없으면 에러
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
 
-        //멤버의 아이디가 존재하면
+        //멤버 아이디가 존재하면
         if (optionalMember.isPresent()) {
             Member member = optionalMember.get();
 
@@ -63,7 +63,7 @@ public class ProductService {
     }
 
     //todo 2. 판매 물품 등록
-    public void createProduct(ProductCreateRequest productCreateRequest, Integer userId) throws IOException, ParseException {
+    public void createProduct(ProductCreateRequest productCreateRequest, Integer memberId) throws IOException, ParseException {
 
         /*
         1. 멤버가 아닌 경우 NO -> 에러
@@ -72,7 +72,7 @@ public class ProductService {
         */
 
         //멤버 찾기 없으면 에러
-        Member member = memberRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
 
         //판매자 등록 여부
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
@@ -86,34 +86,70 @@ public class ProductService {
             Product product = productCreateRequest.toEntity(productCreateRequest, sellerFound);
 
             productRepository.save(product);
-
+//            //product 엔티티 저장
 //            Product savedProduct = productRepository.save(product);
 
-            //todo 판매 물품 옵션
-//            List<OptionType> optionTypes = optionInsert(productCreateRequest.getOptions(), savedProduct);
+//            //todo 판매 물품 옵션
+//            //옵션타입필드
+//            List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
 //
+//            List<OptionType> optionTypes = new ArrayList<>();
+//
+//            for (OptionTypeRequest optionTypeRequest : optionTypeRequests) {
+//
+//                List<Integer> optionDetailIdxList = optionTypeRequest.getOptionDetails().stream()
+//                        .map(OptionDetailRequest::getOptionDetailIdx)
+//                        .collect(Collectors.toList());
+//
+//                String optionDetailIdxString = optionDetailIdxList.stream()
+//                        .map(String::valueOf)
+//                        .collect(Collectors.joining(","));
+//
+//                //DTO와 product 가지고 OptionType 엔티티로 변환
+//                OptionType optionType = OptionType.builder()
+//                        .productIdx(savedProduct.getId())
+//                        .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
+//                        .optionTypeName(optionTypeRequest.getOptionTypeName())
+//                        .optionDetailIdx(optionDetailIdxString)
+//                        .build();
+//
+//                //옵션 타입 저장
+//                OptionType saveOptionType = optionTypeRepository.save(optionType);
+//
+//                List<OptionDetailRequest> optionDetailsRequests = optionTypeRequest.getOptionDetails();
+//                List<OptionDetail> optionDetails = new ArrayList<>();
+//
+//                for (OptionDetailRequest optionDetailRequest : optionDetailsRequests) {
+//                    OptionDetail optionDetail = OptionDetail.builder()
+//                            .productIdx(savedProduct.getId())
+//                            .optionDetailName(optionDetailRequest.getOptionDetailName())
+//                            .optionTypeIdx(saveOptionType.getId())
+//                            .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
+//                            .build();
+//
+//                    optionDetails.add(optionDetail);
+//                }
+//                optionDetailRepository.saveAll(optionDetails);
+//                optionTypes.add(saveOptionType);
+//            }
 //
 //            optionTypeRepository.saveAll(optionTypes);
-
+//            productRepository.save(savedProduct);
 
         } else throw new CustomException(ErrorCode.SELLER_ONLY);
 
     }
 
-//    private List<OptionType> optionInsert(List<OptionTypeRequest> options, Product savedProduct) {
-//         List<OptionType> optionTypes = new ArrayList<>();
-//
-//
-//
-//
-//    }
 
-    //todo 3. 판매자의 판매 물품 상세 조회(구매자의 그냥 물품 상세 조회)
+    //todo 3. 판매 물품 상세 조회(판매자, 구매자인 경우 모두 동일)
     @Transactional
     public ProductResponse getProductOne(Integer productId) throws ParseException {
 
         //product 찾기, 없으면 에러
         Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+
+//      //product 찾기
+//      Product product = productRepository.findProductByIsDeletedAndId(false, productId);
 
         //product 카테고리 찾기, 없으면 에러(영속화)
         ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOTFOUND));
@@ -123,6 +159,7 @@ public class ProductService {
 
         //product의 재고에서 개별 결제건들의 amount들을 빼서 product 재고의 남은 양을 확인한다.
         Integer totalSoldAmount = singleOrders.stream().mapToInt(SingleOrder::getAmount).sum();
+
         Integer remainingStock = product.getStock() - totalSoldAmount;
 
         //product의 재고를 수정
@@ -133,8 +170,8 @@ public class ProductService {
 
         List<OptionTypeResponse> optionTypeResponseList;
 
-        //options Map에서 options의 key, value만 사용한다.
-        if (options.containsKey("options")){
+        //options Map에서 "options"의 key, value만 사용한다.
+        if (options.containsKey("options")) {
 
             optionTypeResponseList = (List<OptionTypeResponse>) options.get("options");
 
@@ -165,14 +202,14 @@ public class ProductService {
      *
      */
 
+
     //todo 4. 판매자의 판매 물품 전체 조회
 
     /* page: 현재 페이지, 0부터 시작한다.
        size: 한 페이지에 노출할 데이터 건수 */
-
-    public  List<AllProductsResponse> getProductsList(String order, Pageable pageable, Integer userId) {
+    public List<AllProductsResponse> getProductsList(String order, Pageable pageable, Integer memberId) {
         //멤버 찾기 없으면 에러
-        Member member = memberRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
 
         //판매자 등록 여부
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
@@ -193,49 +230,44 @@ public class ProductService {
                 throw new CustomException(ErrorCode.NOTFOUND_PRODUCT);
             } else {
 
-                //높은 가격순
+                //높은 가격순: 파마미터로 그냥 pageable만 넣으면 전체조회가 되어버린다. 판매자 기준으로 필터링한 상태에서 정렬하고 싶으면 Seller도 파라미터로 넣어줘야 한다.
                 if (order.equals("낮은가격")) {
-                    productList = productRepository.findProductByOrderByPrice(pageable);
+                    productList = productRepository.findBySellerIdxOrderByPrice(sellerFound, pageable);
                 }
                 //낮은 가격순
                 else if (order.equals("높은가격")) {
-                    productList = productRepository.findProductByOrderByPriceDesc(pageable);
+                    productList = productRepository.findBySellerIdxOrderByPriceDesc(sellerFound, pageable);
                 }
                 //최신순
-                else if (order.equals("신상품")){
-                    productList = productRepository.findProductsByOrderByCreatedAtDesc(pageable);
+                else if (order.equals("신상품")) {
+                    productList = productRepository.findBySellerIdxOrderByCreatedAtDesc(sellerFound, pageable);
                 }
                 //판매순
-
-
-
+                else if (order.equals("판매순")) {
+                    productList = productRepository.findBySellerOrderBySalesAmounts(sellerFound, pageable);
+                }
 
                 //Entity -> Dto로 변환
                 allProductsResponses = productList.map(product -> AllProductsResponse.fromProduct(product));
-                //allProductsResponses = productList.map(product -> new AllProductsResponse());
             }
         } else throw new CustomException(ErrorCode.SELLER_ONLY);
 
-       List<AllProductsResponse> contentList = allProductsResponses.getContent();
+        List<AllProductsResponse> contentList = allProductsResponses.getContent();
 
         return contentList;
     }
 
 
-
-
     //물품 전체 조회
-    public Page<ProductResponse> findProductsPagination(String order, Pageable pageable){
+    public Page<ProductResponse> findProductsPagination(String order, Pageable pageable) {
 
         Page<Product> productEntities;
 
-        if(order.equals("priceAsc")){ //가격 오름차순
+        if (order.equals("priceAsc")) { //가격 오름차순
             productEntities = productRepository.findProductByOrderByPrice(pageable);
-        }
-        else if(order.equals("priceDesc")){ //가격 내림차순
+        } else if (order.equals("priceDesc")) { //가격 내림차순
             productEntities = productRepository.findProductByOrderByPriceDesc(pageable);
-        }
-        else{ //등록순
+        } else { //등록순
             productEntities = productRepository.findAll(pageable);
         }
 
@@ -251,13 +283,11 @@ public class ProductService {
         //TODO. 해당 카테고리에 해당하는 물품이 없는 경우 - 예외 처리
         Page<Product> productEntities;
 
-        if(order.equals("priceAsc")){ //가격 오름차순
+        if (order.equals("priceAsc")) { //가격 오름차순
             productEntities = productRepository.findProductByProductsCategoryIdxIdOrderByPrice(categoryIdx, pageable);
-        }
-        else if(order.equals("priceDesc")){ //가격 내림차순
+        } else if (order.equals("priceDesc")) { //가격 내림차순
             productEntities = productRepository.findProductByProductsCategoryIdxIdOrderByPriceDesc(categoryIdx, pageable);
-        }
-        else{ //등록순
+        } else { //등록순
             productEntities = productRepository.findProductByProductsCategoryIdxId(categoryIdx, pageable);
         }
 
@@ -266,7 +296,6 @@ public class ProductService {
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
-
 
 
 }

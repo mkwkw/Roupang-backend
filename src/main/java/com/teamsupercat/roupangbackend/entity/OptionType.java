@@ -28,4 +28,7 @@ public class OptionType {
     @Column(name = "option_detail_idx")
     private String optionDetailIdx;
 
+    @Column(name = "option_type_name")
+    private String optionTypeName;
+
 }
