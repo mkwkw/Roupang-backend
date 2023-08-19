@@ -15,9 +15,8 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OptionDetailRequest {
 
-    @ApiModelProperty(name= "optionTypeName", value = "옵션 타입 이름", example = "상의")
-    private Integer optionDetailIdx;
-
-    @ApiModelProperty(name= "optionDetailName", value = "옵션 디테일 이름", example = "사이즈면 S or M or L 하나 입력")
+    @ApiModelProperty(name= "optionDetailName", value = "옵션 세부 선택", example = "Red (S/M/L, Red/Blue)")
     private String optionDetailName;
+
 }
+

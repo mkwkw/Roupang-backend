@@ -28,7 +28,8 @@ public class OptionType {
     @Column(name = "option_detail_idx")
     private String optionDetailIdx;
 
-    @Column(name = "option_type_name")
+    @Column(name = "option_type_name", nullable = true)
     private String optionTypeName;
+
 
 }

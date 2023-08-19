@@ -50,6 +50,8 @@ public enum ErrorCode {
 
     OUT_OF_STOCK(HttpStatus.NOT_FOUND, "개의 상품 수량보다 많이 선택하셨습니다."),
 
+    OPTION_TYPE_NAME_NOT_FOUND(HttpStatus.NOT_FOUND, "옵션 타입을 찾을 수 없습니다."),
+
     // 카테고리
     CATEGORY_NOTFOUND(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."),
 
