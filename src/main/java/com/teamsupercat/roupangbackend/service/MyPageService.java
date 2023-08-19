@@ -29,4 +29,21 @@ public class MyPageService {
         return ResponseDto.success(myPageResponse);
     }
 
+
+    @Transactional
+    public MyPageDto.MyPageResponse updateMyPage(
+            MyPageDto.UpdateMyPageRequest updateMyPageRequest,
+            String email){
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.MY_PAGE_REQUIRED_INFO_MISSING));
+
+        member.setNickname(updateMyPageRequest.getNickname());
+        member.setPhoneNumber(updateMyPageRequest.getPhoneNumber());
+        member.setAddress(updateMyPageRequest.getAddress());
+        member.setMemberImg(updateMyPageRequest.getMemberImg());
+
+        return MyPageDto.MyPageResponse.toResponse(member);
+
+    }
 }

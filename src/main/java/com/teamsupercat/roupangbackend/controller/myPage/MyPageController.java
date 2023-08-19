@@ -3,6 +3,7 @@ package com.teamsupercat.roupangbackend.controller.myPage;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.ResponseDto;
+import com.teamsupercat.roupangbackend.dto.myPage.MyPageDto;
 import com.teamsupercat.roupangbackend.service.MyPageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -10,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,6 +37,16 @@ public class MyPageController {
         String memberEmail = userDetails.getUsername();
 
         return myPageService.getMyPageInfo(memberEmail);
+    }
+
+    @ApiOperation(value = "마이페이지 수정")
+    @PatchMapping("/")
+    public ResponseDto<?> updateMyPage(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody MyPageDto.UpdateMyPageRequest updateMyPageRequest){
+
+        String memberEmail = userDetails.getUsername();
+        return ResponseDto.success(myPageService.updateMyPage(updateMyPageRequest, memberEmail));
     }
 
 }
