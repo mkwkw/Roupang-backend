@@ -18,12 +18,8 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
     @Query("select c from Cart c where c.memberIdx.id = :member and c.productIdx.id = :product and c.isDeleted=false ")
     Optional<Cart> findByMemberIdAndProductId(Integer member, Integer product);
 
-
     @Query("select c from Cart c where c.memberIdx = :memberIdx and c.isDeleted = false")
     List<Cart> findByMemberIdxAndIsDeletedFalse(Member memberIdx);
-
-    @Query("select c from Cart c where c.memberIdx = ?1 and c.productIdx = ?2 and c.isDeleted = false")
-    List<Cart> findByMemberIdxAndProductIdxAndIsDeleted(Member memberIdx, Product productIdx);
 
     @Query("select c from Cart c where c.memberIdx = :memberIdx and c.isDeleted = false ")
     List<Cart> findByMemberIdxAndIsDeleted(Member memberIdx);
@@ -31,12 +27,8 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
     @Transactional
     @Modifying
     @Query("update Cart c set c.isDeleted = true where c.memberIdx = :memberIdx and c.productIdx = :productIdx")
-    int updateIsDeletedByMemberIdxAndProductIdx( Member memberIdx, Product productIdx);
+    void updateIsDeletedByMemberIdxAndProductIdx(Member memberIdx, Product productIdx);
 
     @Query("select c from Cart c where c.memberIdx = :memberIdx and c.productIdx = :productIdx and c.isDeleted = false")
-    Cart findByMemberIdxAndProductIdxAndIsDeletedFalse(Member memberIdx, Product productIdx);
-
-
-
-
+    Optional<Cart> findByMemberIdxAndProductIdxAndIsDeletedFalse(Member memberIdx, Product productIdx);
 }
