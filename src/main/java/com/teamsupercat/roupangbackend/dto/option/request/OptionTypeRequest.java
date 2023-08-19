@@ -17,13 +17,8 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class OptionTypeRequest {
 
-
-    @ApiModelProperty(name= "optionTypeNameIdx", value = "옵션 타입 ID", example = "1 이면 사이즈(S,M,L), 3이면 컬러(Red, Blue)")
+    @ApiModelProperty(name= "optionTypeNameIdx", value = "OptionType의 옵션타입명 Id", example = "1 (1: 크기, 2: 무게, 3: 색상)")
     private Integer optionTypeNameIdx;
-
-    @ApiModelProperty(name= "optionTypeName", value = "옵션 타입 이름", example = "상의")
-    private String optionTypeName;
-
     private List<OptionDetailRequest> optionDetails;
 
 

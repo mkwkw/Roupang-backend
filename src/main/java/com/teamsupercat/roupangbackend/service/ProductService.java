@@ -3,6 +3,8 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionDetailRequest;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionTypeRequest;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
@@ -17,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,6 +38,7 @@ public class ProductService {
     private final OptionService optionService;
     private final OptionTypeRepository optionTypeRepository;
     private final OptionDetailRepository optionDetailRepository;
+    private final OptionTypeNameRepository optionTypeNameRepository;
 
     //todo 1. 판매자 등록
     public Integer saveAsSeller(Integer memberId) {
@@ -85,58 +90,58 @@ public class ProductService {
             //판매 물품
             Product product = productCreateRequest.toEntity(productCreateRequest, sellerFound);
 
-            productRepository.save(product);
-//            //product 엔티티 저장
-//            Product savedProduct = productRepository.save(product);
+            //product 엔티티 저장
+            Product savedProduct = productRepository.save(product);
 
-//            //todo 판매 물품 옵션
-//            //옵션타입필드
-//            List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
-//
-//            List<OptionType> optionTypes = new ArrayList<>();
-//
-//            for (OptionTypeRequest optionTypeRequest : optionTypeRequests) {
-//
-//                List<Integer> optionDetailIdxList = optionTypeRequest.getOptionDetails().stream()
-//                        .map(OptionDetailRequest::getOptionDetailIdx)
-//                        .collect(Collectors.toList());
-//
-//                String optionDetailIdxString = optionDetailIdxList.stream()
-//                        .map(String::valueOf)
-//                        .collect(Collectors.joining(","));
-//
-//                //DTO와 product 가지고 OptionType 엔티티로 변환
-//                OptionType optionType = OptionType.builder()
-//                        .productIdx(savedProduct.getId())
-//                        .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
-//                        .optionTypeName(optionTypeRequest.getOptionTypeName())
-//                        .optionDetailIdx(optionDetailIdxString)
-//                        .build();
-//
-//                //옵션 타입 저장
-//                OptionType saveOptionType = optionTypeRepository.save(optionType);
-//
-//                List<OptionDetailRequest> optionDetailsRequests = optionTypeRequest.getOptionDetails();
-//                List<OptionDetail> optionDetails = new ArrayList<>();
-//
-//                for (OptionDetailRequest optionDetailRequest : optionDetailsRequests) {
-//                    OptionDetail optionDetail = OptionDetail.builder()
-//                            .productIdx(savedProduct.getId())
-//                            .optionDetailName(optionDetailRequest.getOptionDetailName())
-//                            .optionTypeIdx(saveOptionType.getId())
-//                            .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
-//                            .build();
-//
-//                    optionDetails.add(optionDetail);
-//                }
-//                optionDetailRepository.saveAll(optionDetails);
-//                optionTypes.add(saveOptionType);
-//            }
-//
-//            optionTypeRepository.saveAll(optionTypes);
-//            productRepository.save(savedProduct);
+            //todo 판매 물품 옵션
+            //List<OptionTypeRequest> 정의
+            List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
 
-        } else throw new CustomException(ErrorCode.SELLER_ONLY);
+            //담아줄 List<OptionType> 엔티티 생성
+            List<OptionType> optionTypes = new ArrayList<>();
+
+            for (OptionTypeRequest optionTypeRequest : optionTypeRequests) {
+                OptionTypeName optionTypeName = optionTypeNameRepository.findById(optionTypeRequest.getOptionTypeNameIdx()).orElseThrow(() -> new CustomException(ErrorCode.OPTION_TYPE_NAME_NOT_FOUND));
+
+                //DTO와 product 가지고 OptionType 엔티티로 변환
+                OptionType optionType = OptionType.builder()
+                        .productIdx(savedProduct.getId())
+                        .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
+                        .build();
+
+                //옵션 타입 저장
+                OptionType savedOptionType = optionTypeRepository.save(optionType);
+
+                //List<OptionDetailRequest> 정의
+                List<OptionDetailRequest> optionDetailsRequests = optionTypeRequest.getOptionDetails();
+                //담아줄 List<OptionDetail> 생성
+                List<OptionDetail> optionDetails = new ArrayList<>();
+                //담아줄 optionDetailIdxList 생성
+                List<Integer> optionDetailIdxList = new ArrayList<>();
+
+                for (OptionDetailRequest optionDetailRequest : optionDetailsRequests) {
+                    OptionDetail optionDetail = OptionDetail.builder()
+                            .productIdx(savedProduct)
+                            .optionDetailName(optionDetailRequest.getOptionDetailName())
+                            .optionTypeIdx(savedOptionType.getId())
+                            .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
+                            .build();
+
+                    OptionDetail savedOptionDetail = optionDetailRepository.save(optionDetail);
+                    optionDetailIdxList.add(savedOptionDetail.getId());
+                }
+
+                String optionDetailIdxString = optionDetailIdxList.stream().map(String::valueOf).collect(Collectors.joining(","));
+                savedOptionType.setOptionDetailIdx(optionDetailIdxString);
+                optionTypes.add(savedOptionType);
+
+                optionDetailRepository.saveAll(optionDetails);
+
+            }
+            optionTypeRepository.saveAll(optionTypes);
+            productRepository.save(savedProduct);
+
+        } else throw new CustomException(ErrorCode.SELLER_ONLY); //에러: 판매자만 물품 등록 할 수 있습니다.
 
     }
 
