@@ -19,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @Service
@@ -68,6 +68,7 @@ public class ProductService {
     }
 
     //todo 2. 판매 물품 등록
+    @Transactional
     public void createProduct(ProductCreateRequest productCreateRequest, Integer memberId) throws IOException, ParseException {
 
         /*
@@ -84,7 +85,7 @@ public class ProductService {
 
         //판매자로 등록되어 있으면
         if (Boolean.TRUE.equals(areYouSeller)) {
-
+            //판매자 찾기
             Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
 
             //판매 물품
@@ -93,56 +94,13 @@ public class ProductService {
             //product 엔티티 저장
             Product savedProduct = productRepository.save(product);
 
-            //todo 판매 물품 옵션
+            //판매 물품 옵션
             //List<OptionTypeRequest> 정의
             List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
-
-            //담아줄 List<OptionType> 엔티티 생성
-            List<OptionType> optionTypes = new ArrayList<>();
-
-            for (OptionTypeRequest optionTypeRequest : optionTypeRequests) {
-                OptionTypeName optionTypeName = optionTypeNameRepository.findById(optionTypeRequest.getOptionTypeNameIdx()).orElseThrow(() -> new CustomException(ErrorCode.OPTION_TYPE_NAME_NOT_FOUND));
-
-                //DTO와 product 가지고 OptionType 엔티티로 변환
-                OptionType optionType = OptionType.builder()
-                        .productIdx(savedProduct.getId())
-                        .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
-                        .build();
-
-                //옵션 타입 저장
-                OptionType savedOptionType = optionTypeRepository.save(optionType);
-
-                //List<OptionDetailRequest> 정의
-                List<OptionDetailRequest> optionDetailsRequests = optionTypeRequest.getOptionDetails();
-                //담아줄 List<OptionDetail> 생성
-                List<OptionDetail> optionDetails = new ArrayList<>();
-                //담아줄 optionDetailIdxList 생성
-                List<Integer> optionDetailIdxList = new ArrayList<>();
-
-                for (OptionDetailRequest optionDetailRequest : optionDetailsRequests) {
-                    OptionDetail optionDetail = OptionDetail.builder()
-                            .productIdx(savedProduct)
-                            .optionDetailName(optionDetailRequest.getOptionDetailName())
-                            .optionTypeIdx(savedOptionType.getId())
-                            .optionTypeNameIdx(optionTypeRequest.getOptionTypeNameIdx())
-                            .build();
-
-                    OptionDetail savedOptionDetail = optionDetailRepository.save(optionDetail);
-                    optionDetailIdxList.add(savedOptionDetail.getId());
-                }
-
-                String optionDetailIdxString = optionDetailIdxList.stream().map(String::valueOf).collect(Collectors.joining(","));
-                savedOptionType.setOptionDetailIdx(optionDetailIdxString);
-                optionTypes.add(savedOptionType);
-
-                optionDetailRepository.saveAll(optionDetails);
-
-            }
-            optionTypeRepository.saveAll(optionTypes);
-            productRepository.save(savedProduct);
-
-        } else throw new CustomException(ErrorCode.SELLER_ONLY); //에러: 판매자만 물품 등록 할 수 있습니다.
-
+            insertProductOptions(savedProduct, optionTypeRequests);
+        } else {
+            throw new CustomException(ErrorCode.SELLER_ONLY); //에러: 판매자만 물품 등록 할 수 있습니다.
+        }
     }
 
 
@@ -188,7 +146,6 @@ public class ProductService {
 
     }
 
-
     /* <멤버>
      * 그냥 멤버이고 판매자가 아닌 경우 -> NO
      * 그냥 멤버도 아닌 경우 -> NO
@@ -206,7 +163,6 @@ public class ProductService {
      * 물품의 카테고리가 있으면 해당 카테고리를 가진 물품 리스트만 보여준다.
      *
      */
-
 
     //todo 4. 판매자의 판매 물품 전체 조회
 
@@ -261,6 +217,83 @@ public class ProductService {
 
         return contentList;
     }
+
+    //todo 5. 판매자의 판매 물품 수정
+    @Transactional
+    public void updateProduct(Integer productId, Integer memberId, ProductCreateRequest productCreateRequest) throws ParseException {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+
+        Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
+
+        if (Boolean.TRUE.equals(areYouSeller)) {
+            Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
+            if (existingProduct.getSellerIdx().getId() == sellerFound.getId()) {
+
+                productCreateRequest.updateEntity(existingProduct, sellerFound, productId);
+
+                Product savedProduct = productRepository.save(existingProduct);
+
+                //option
+                deleteProductOptions(productId);
+                List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
+                insertProductOptions(savedProduct, optionTypeRequests);
+
+            } else throw new CustomException(ErrorCode.MISMATCH_SELLER);
+
+        } else throw new CustomException(ErrorCode.SELLER_ONLY);
+
+    }
+
+    //todo 물품 옵션 삭제 메소드
+    @Transactional
+    private void deleteProductOptions(Integer productId) {
+        List<OptionType> optionTypes = optionTypeRepository.findAllByProductIdx(productId);
+//        for (OptionType optionType : optionTypes) {
+//            optionDetailRepository.deleteAllByOptionTypeIdx(optionType.getId());
+//        }
+//        optionTypeRepository.deleteAllByProductIdx(productId);
+        //
+        //OptionType의 Id만 추출해서 리스트로 반환
+        optionTypes.stream().map(OptionType::getId).forEach(optionTypeId -> {
+            optionTypeRepository.deleteById(optionTypeId);
+            optionDetailRepository.deleteAllByOptionTypeIdx(optionTypeId);
+        });
+    }
+
+    //todo 물품 옵션 등록 메소드
+    @Transactional
+    private void insertProductOptions(Product savedProduct, List<OptionTypeRequest> optionTypeRequests) {
+        //optionTypeRequest 하나하나를 각각의 optionType으로 바꿔주는 로직
+        List<OptionType> optionTypes = optionTypeRequests.stream()
+                .map(optionTypeRequest -> {
+                    OptionType optionType = optionTypeRequest.createOptionType(savedProduct);
+                    optionTypeRepository.save(optionType);
+
+                    //List<OptionDetailRequest> 정의
+                    List<OptionDetailRequest> optionDetailRequests = optionTypeRequest.getOptionDetails();
+
+                    //optionDetailRequest 리스트를 순회하면서 각 요소마다 OptionDetail 엔티티를 생성
+                    List<OptionDetail> optionDetails = optionDetailRequests.stream().map(optionDetailRequest -> {
+                        OptionDetail optionDetail = optionDetailRequest.createOptionDetail(savedProduct, optionType);
+                        return optionDetailRepository.save(optionDetail); //저장 후 반환
+                    }).collect(Collectors.toList());
+
+                    //String optionDetailIdxString 은 optionDetail 엔티티 하나하나 안에서마다 optionDetail의 id를 String의 값으로 바꾸고 이 문자열 요소들을 모으는데 1 2 3 이 아니라 1,2,3 이 되게끔 ","을 중간마다 붙인다.
+                    String optionDetailIdxString = optionDetails.stream().map(optionDetail -> String.valueOf(optionDetail.getId())).collect(Collectors.joining(","));
+
+                    //optionType 엔티티의 OptionDetailIdx에 optionDetailIdxString을 넣어준다.
+                    optionType.setOptionDetailIdx(optionDetailIdxString);
+                    optionTypeRepository.save(optionType); //업데이트
+
+                    return optionType;
+                }).collect(Collectors.toList());
+
+        optionTypeRepository.saveAll(optionTypes);
+        productRepository.save(savedProduct);
+    }
+
 
 
     //물품 전체 조회

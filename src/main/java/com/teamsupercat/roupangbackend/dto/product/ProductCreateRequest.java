@@ -47,5 +47,16 @@ public class ProductCreateRequest {
 
     }
 
-
+    public void updateEntity(Product existingProduct, Seller sellerFound, Integer productId) throws ParseException {
+        existingProduct.setId(productId);
+        existingProduct.setSellerIdx(sellerFound);
+        existingProduct.setProductName(getProductName());
+        existingProduct.setDescription(getDescription());
+        existingProduct.setPrice(getPrice());
+        existingProduct.setStock(getStock());
+        existingProduct.setSalesEndDate(DateUtils.convertToTimestamp(getSalesEndDate()));
+        existingProduct.setProductsCategoryIdx(ProductsCategory.builder().id(getCategoryIdx()).build());
+        existingProduct.setProductImg(getProductImg());
+        existingProduct.setDescriptionImg(getDescriptionImg());
+    }
 }

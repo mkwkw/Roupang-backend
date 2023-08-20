@@ -2,14 +2,14 @@ package com.teamsupercat.roupangbackend.dto.option.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.teamsupercat.roupangbackend.entity.OptionType;
+import com.teamsupercat.roupangbackend.entity.Product;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
-
+@ToString
+@Builder
 @Setter
 @Getter
 @AllArgsConstructor
@@ -22,4 +22,12 @@ public class OptionTypeRequest {
     private List<OptionDetailRequest> optionDetails;
 
 
+    @Builder
+    public OptionType createOptionType(Product savedProduct) {
+        return OptionType.builder()
+                .productIdx(savedProduct.getId())
+                .optionTypeNameIdx(this.getOptionTypeNameIdx())
+                .build();
+
+    }
 }
