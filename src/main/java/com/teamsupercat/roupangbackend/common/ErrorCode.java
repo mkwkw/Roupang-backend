@@ -47,6 +47,8 @@ public enum ErrorCode {
 
     SELLER_ONLY(HttpStatus.BAD_REQUEST, "판매자로 등록된 유저만 사용할 수 있습니다."),
 
+    MISMATCH_SELLER(HttpStatus.UNAUTHORIZED, "해당 물품의 판매자와 현재 판매자가 일치하지 않습니다."),
+
 
     // 상품
     PRODUCT_NOTFOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다."),

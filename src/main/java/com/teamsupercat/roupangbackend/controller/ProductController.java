@@ -79,6 +79,18 @@ public class ProductController {
         return new ResponseDto<>(true, "판매자의 판매 물품 내역 조회에 성공하였습니다.", productsList);
     }
 
+    @ApiOperation(value= "판매자의 판매 물품 수정 ", notes = "판매자의 판매 물품 수정")
+    @PatchMapping("/seller/products/{product_id}")
+    public ResponseDto<Object> updateProduct(@PathVariable("product_id") Integer productId,
+                                             @RequestBody ProductCreateRequest productCreateRequest,
+                                             @AuthenticationPrincipal CustomUserDetail userDetails) throws ParseException {
+
+        Integer memberId = userDetails.getMemberIdx();
+        productService.updateProduct(productId, memberId, productCreateRequest);
+
+        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 업데이트되었습니다.", null);
+    }
+
 
 
 
