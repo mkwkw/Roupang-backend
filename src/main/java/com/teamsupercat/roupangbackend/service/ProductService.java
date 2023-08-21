@@ -235,7 +235,7 @@ public class ProductService {
 
                 Product savedProduct = productRepository.save(existingProduct);
 
-                //option
+                //option: 삭제 후 재등록
                 deleteProductOptions(productId);
                 List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
                 insertProductOptions(savedProduct, optionTypeRequests);
@@ -245,26 +245,47 @@ public class ProductService {
         } else throw new CustomException(ErrorCode.SELLER_ONLY);
 
     }
+    //todo 6. 판매자의 판매 물품 삭제
+    @Transactional
+    public void deleteProduct(Integer productId, Integer memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+
+        Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
+
+        if (Boolean.TRUE.equals(areYouSeller)) {
+            Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
+            if (existingProduct.getSellerIdx().getId() == sellerFound.getId()) {
+                List<OptionType> optionTypes = optionTypeRepository.findAllByProductIdx(productId);
+                List<OptionDetail> optionDetails = optionDetailRepository.findAllByProductIdx(existingProduct);
+                if(optionTypes == null && optionDetails == null) {
+                    productRepository.deleteById(productId);
+                } else{
+                deleteProductOptions(productId);
+                productRepository.deleteById(productId);}
+
+            } else throw new CustomException(ErrorCode.MISMATCH_SELLER);
+        } else throw new CustomException(ErrorCode.SELLER_ONLY);
+    }
 
     //todo 물품 옵션 삭제 메소드
-    @Transactional
-    private void deleteProductOptions(Integer productId) {
+    public void deleteProductOptions(Integer productId) {
         List<OptionType> optionTypes = optionTypeRepository.findAllByProductIdx(productId);
 //        for (OptionType optionType : optionTypes) {
 //            optionDetailRepository.deleteAllByOptionTypeIdx(optionType.getId());
 //        }
 //        optionTypeRepository.deleteAllByProductIdx(productId);
-        //
-        //OptionType의 Id만 추출해서 리스트로 반환
-        optionTypes.stream().map(OptionType::getId).forEach(optionTypeId -> {
-            optionTypeRepository.deleteById(optionTypeId);
-            optionDetailRepository.deleteAllByOptionTypeIdx(optionTypeId);
-        });
+            //OptionType의 Id만 추출해서 리스트로 반환
+            optionTypes.stream().map(OptionType::getId).forEach(optionTypeId -> {
+                optionDetailRepository.deleteAllByOptionTypeIdx(optionTypeId);
+                optionTypeRepository.deleteById(optionTypeId);
+            });
+
     }
 
     //todo 물품 옵션 등록 메소드
-    @Transactional
-    private void insertProductOptions(Product savedProduct, List<OptionTypeRequest> optionTypeRequests) {
+    public void insertProductOptions(Product savedProduct, List<OptionTypeRequest> optionTypeRequests) {
         //optionTypeRequest 하나하나를 각각의 optionType으로 바꿔주는 로직
         List<OptionType> optionTypes = optionTypeRequests.stream()
                 .map(optionTypeRequest -> {

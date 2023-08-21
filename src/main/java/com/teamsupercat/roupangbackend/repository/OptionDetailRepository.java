@@ -1,6 +1,7 @@
 package com.teamsupercat.roupangbackend.repository;
 
 import com.teamsupercat.roupangbackend.entity.OptionDetail;
+import com.teamsupercat.roupangbackend.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,6 @@ public interface OptionDetailRepository extends JpaRepository<OptionDetail, Inte
     List<OptionDetail> findOptionDetailByOptionDetailName(String optionDetailName);
 
     void deleteAllByOptionTypeIdx(Integer id);
+
+    List<OptionDetail> findAllByProductIdx(Product productId);
 }
