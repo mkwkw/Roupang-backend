@@ -1,6 +1,10 @@
 package com.teamsupercat.roupangbackend.security;
 
+import com.teamsupercat.roupangbackend.common.CustomException;
+import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.entity.Member;
+import com.teamsupercat.roupangbackend.repository.MemberRepository;
+import com.teamsupercat.roupangbackend.repository.RefreshTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -26,7 +30,13 @@ import java.util.Date;
 @Slf4j
 public class JwtTokenProvider {
     private String secretKey = "Super-Coding";
+
+
     final private UserDetailsService userDetailsService;
+
+    final private MemberRepository memberRepository;
+
+    final private  RefreshTokenRepository refreshTokenRepository;
     final long AccessTokenValidMilliSecond =  1000L * 60 * 60; // 1시간
     final long RefreshTokenValidMilliSecond = 1000L *60 * 60 *24 * 7; //  1주일
 
@@ -39,9 +49,19 @@ public class JwtTokenProvider {
         String token = request.getHeader("Authorization");
         return token==null ? null : token.substring(7);
     }
+
+        public Integer getMemberIdx(String jwtToken){
+            log.info("getMemberIdx jwtToken {}" ,jwtToken);
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(jwtToken)
+                    .getBody();
+            Integer memberIdx = (Integer) claims.get("idx");
+          return memberIdx;
+        }
     public String createAccessToken(Member member){
         Claims claims = Jwts.claims().setSubject("memberToken");
-
+        claims.put("idx" ,member.getId());
         claims.put("email",member.getEmail());
         claims.put("nickname",member.getNickname());
         claims.put("phone_number",member.getPhoneNumber());
@@ -63,7 +83,7 @@ public class JwtTokenProvider {
     }
     public String createRefreshToken(Member member){
         Claims claims = Jwts.claims().setSubject("memberToken");
-
+        claims.put("idx" ,member.getId());
         claims.put("email",member.getEmail());
         claims.put("nickname",member.getNickname());
         claims.put("phone_number",member.getPhoneNumber());
@@ -119,6 +139,13 @@ public class JwtTokenProvider {
         if(instant != null)return formatter.format(instant);
 
         else return null;
+    }
+
+
+    public Member getMember(String jwtToken){
+        String memberEmail = getEmail(jwtToken);
+        return memberRepository.findByEmail(memberEmail).orElseThrow(()
+                -> new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND_EMAIL));
     }
 }
 

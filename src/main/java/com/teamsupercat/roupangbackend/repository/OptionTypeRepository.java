@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface OptionTypeRepository extends JpaRepository<OptionType, Integer> {
     List<OptionType> findOptionTypeByProductIdx(Integer productIdx);
+
+    List<OptionType> findAllByProductIdx(Integer productId);
+
 }

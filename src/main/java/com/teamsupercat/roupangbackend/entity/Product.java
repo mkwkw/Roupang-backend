@@ -6,8 +6,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.time.Instant;
 
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -62,5 +62,6 @@ public class Product {
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
+
 
 }

@@ -3,7 +3,7 @@ package com.teamsupercat.roupangbackend.dto.product;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teamsupercat.roupangbackend.common.DateUtils;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionTypeRequest;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
 import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.entity.ProductsCategory;
 import com.teamsupercat.roupangbackend.entity.Seller;
@@ -28,7 +28,11 @@ public class ProductCreateRequest {
     private Integer categoryIdx;
     private String productImg;
     private String descriptionImg;
-    private List<OptionTypeRequest> options;
+    private Boolean existsOption;
+    private List<OptionRegisterRequest1> options;
+
+
+
 
 
     public Product toEntity(ProductCreateRequest productCreateRequest, Seller seller) throws ParseException {
@@ -47,14 +51,16 @@ public class ProductCreateRequest {
 
     }
 
-//    public List<OptionType> toEntity2(ProductCreateRequest productCreateRequest, Seller sellerFound) {
-//        return OptionType.builder()
-//                .id(options.)
-//                .productIdx()
-//                .optionTypeName()
-//                .optionDetailIdx()
-//                .build();
-//
-//
-//    }
+    public void updateEntity(Product existingProduct, Seller sellerFound, Integer productId) throws ParseException {
+        existingProduct.setId(productId);
+        existingProduct.setSellerIdx(sellerFound);
+        existingProduct.setProductName(getProductName());
+        existingProduct.setDescription(getDescription());
+        existingProduct.setPrice(getPrice());
+        existingProduct.setStock(getStock());
+        existingProduct.setSalesEndDate(DateUtils.convertToTimestamp(getSalesEndDate()));
+        existingProduct.setProductsCategoryIdx(ProductsCategory.builder().id(getCategoryIdx()).build());
+        existingProduct.setProductImg(getProductImg());
+        existingProduct.setDescriptionImg(getDescriptionImg());
+    }
 }

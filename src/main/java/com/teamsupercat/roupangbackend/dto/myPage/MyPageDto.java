@@ -14,9 +14,11 @@ public class MyPageDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class GetMyPageRequest {
-        private Integer memberIdx;
-        private String email;
+    public static class UpdateMyPageRequest {
+        private String nickname;
+        private String phoneNumber;
+        private String address;
+        private String memberImg;
     }
 
 
@@ -31,7 +33,6 @@ public class MyPageDto {
         private String nickname;
         private String phoneNumber;
         private String email;
-        private String userPassword;
 
         private String address;
         private String memberImg;
@@ -40,7 +41,6 @@ public class MyPageDto {
 
         private Instant createdAt;
         private Instant updatedAt;
-        private Boolean isDeleted;
 
         public static MyPageResponse toResponse(Member member){
 
@@ -49,13 +49,11 @@ public class MyPageDto {
                     .nickname(member.getNickname())
                     .phoneNumber(member.getPhoneNumber())
                     .email(member.getEmail())
-                    .userPassword(member.getUserPassword())
                     .address(member.getAddress())
                     .memberImg(member.getMemberImg())
                     .userPoint(member.getUserPoint())
                     .createdAt(member.getCreatedAt())
                     .updatedAt(member.getUpdatedAt())
-                    .isDeleted(member.getIsDeleted())
                     .build();
         }
 
