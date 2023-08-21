@@ -4,14 +4,14 @@ import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
-import com.teamsupercat.roupangbackend.entity.*;
+import com.teamsupercat.roupangbackend.entity.Product;
+import com.teamsupercat.roupangbackend.entity.ProductsCategory;
 import com.teamsupercat.roupangbackend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.util.List;
@@ -36,7 +36,6 @@ public class ProductService {
 
 
     //todo 4. 판매 물품 상세 조회(판매자, 구매자인 경우 모두 동일)
-    @Transactional
     public ProductResponse getProductOne(Integer productId) throws ParseException {
 
         //product 찾기, 없으면 에러
@@ -47,17 +46,6 @@ public class ProductService {
 
         //product 카테고리 찾기, 없으면 에러(영속화)
         ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_CATEGORY_NOT_FOUND));
-
-        //singerOrder 개별 주문 결제건 리스트 찾기
-        List<SingleOrder> singleOrders = singleOrderRepository.findByProductIdx(product);
-
-        //product의 재고에서 개별 결제건들의 amount들을 빼서 product 재고의 남은 양을 확인한다.
-        Integer totalSoldAmount = singleOrders.stream().mapToInt(SingleOrder::getAmount).sum();
-
-        Integer remainingStock = product.getStock() - totalSoldAmount;
-
-        //product의 재고를 수정
-        product.setStock(remainingStock);
 
         //optionService에서 options 불러오기
         Map<String, Object> options = optionService.findOptionByProductIdx(productId);

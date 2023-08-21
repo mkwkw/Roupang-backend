@@ -10,13 +10,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,7 +56,7 @@ public class SellerController {
 
         Integer memberId = userDetails.getMemberIdx();
 
-        List<AllProductsResponse> productsList = sellerService.getProductsList(order, pageable, memberId);
+        Page<AllProductsResponse> productsList = sellerService.getProductsList(order, pageable, memberId);
 
         return new ResponseDto<>(true, "판매자의 판매 물품 내역 조회에 성공하였습니다.", productsList);
     }

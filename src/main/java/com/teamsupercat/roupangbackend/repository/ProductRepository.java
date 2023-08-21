@@ -5,24 +5,27 @@ import com.teamsupercat.roupangbackend.entity.Seller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product,Integer> {
+public interface ProductRepository extends JpaRepository<Product, Integer> {
 
 
     Product findProductByIsDeletedAndId(Boolean isDeleted, Integer productId);
 
     Page<Product> findAllByIsDeletedAndSellerIdx(Boolean isDeleted, Seller seller, Pageable pageable);
 
-    Page<Product> findBySellerIdxOrderByPrice(Seller sellerIdx, Pageable pageable);
+    Page<Product> findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByPrice(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
 
-    Page<Product> findBySellerIdxOrderByPriceDesc (Seller sellerId, Pageable pageable);
+    Page<Product> findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByPriceDesc(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
 
-    Page<Product> findBySellerIdxOrderByCreatedAtDesc (Seller sellerId, Pageable pageable);
+    Page<Product> findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByCreatedAtDesc(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
 
     Page<Product> findProductByOrderByPrice(Pageable pageable);
 
@@ -61,4 +64,9 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     Page<Product> findProductByIsDeletedAndStockGreaterThanOrderByPriceDesc(boolean isDeleted, Integer stock, Pageable pageable);
 
     Page<Product> findProductByIsDeletedAndStockGreaterThan(boolean isDeleted, Integer stock, Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE Product p SET p.isDeleted = true WHERE p.id=:idx ")
+    void deleteProduct(@Param("idx") Integer productId);
 }
