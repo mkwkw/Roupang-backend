@@ -16,9 +16,9 @@ public class CartChangeRequest {
     private Integer productIdx;
     private Integer amount;
 
-    public Cart saveToEntity(Member bymember, Product byproduct) {
+    public Cart saveToEntity(Member member, Product byproduct) {
         return Cart.builder()
-                .memberIdx(bymember)
+                .memberIdx(member)
                 .productIdx(byproduct)
                 .amount(amount)
                 .createdAt(Instant.now())

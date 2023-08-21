@@ -47,14 +47,16 @@ public class ProductCreateRequest {
 
     }
 
-//    public List<OptionType> toEntity2(ProductCreateRequest productCreateRequest, Seller sellerFound) {
-//        return OptionType.builder()
-//                .id(options.)
-//                .productIdx()
-//                .optionTypeName()
-//                .optionDetailIdx()
-//                .build();
-//
-//
-//    }
+    public void updateEntity(Product existingProduct, Seller sellerFound, Integer productId) throws ParseException {
+        existingProduct.setId(productId);
+        existingProduct.setSellerIdx(sellerFound);
+        existingProduct.setProductName(getProductName());
+        existingProduct.setDescription(getDescription());
+        existingProduct.setPrice(getPrice());
+        existingProduct.setStock(getStock());
+        existingProduct.setSalesEndDate(DateUtils.convertToTimestamp(getSalesEndDate()));
+        existingProduct.setProductsCategoryIdx(ProductsCategory.builder().id(getCategoryIdx()).build());
+        existingProduct.setProductImg(getProductImg());
+        existingProduct.setDescriptionImg(getDescriptionImg());
+    }
 }

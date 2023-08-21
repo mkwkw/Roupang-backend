@@ -14,4 +14,6 @@ public interface OptionDetailRepository extends JpaRepository<OptionDetail, Inte
 
     //@Query(name = "SELECT o FROM OptionDetail o JOIN o.productIdx WHERE o.optionDetailName = :optionDetailName")
     List<OptionDetail> findOptionDetailByOptionDetailName(String optionDetailName);
+
+    void deleteAllByOptionTypeIdx(Integer id);
 }
