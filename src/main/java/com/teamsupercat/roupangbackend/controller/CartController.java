@@ -64,7 +64,7 @@ public class CartController {
     private Member authMemberCheck(CustomUserDetail userDetail, HttpServletRequest servletRequest) {
         if (servletRequest.getHeader("authorization") == null)
             throw new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN);
-        return memberRepository.findById(userDetail.getMemberIdx()).orElseThrow(() -> new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_TOKEN));
+        return memberRepository.findById(userDetail.getMemberIdx()).orElseThrow(() -> new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND_TOKEN));
     }
 
     // request 객체에서 비어있는 값이 있는지 확인하는 코드

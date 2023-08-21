@@ -27,7 +27,7 @@ public class ViewHistoryService {
 
         for (ViewHistoryRequest request : viewHistoryRequest) {
 
-            Product product = productRepository.findById(request.getProductHistory()).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_PRODUCT));
+            Product product = productRepository.findById(request.getProductHistory()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
             ViewHistoryResponse historyResponse = viewHistoryResponse.toEntity(product);
             historyResponses.add(historyResponse);
         }

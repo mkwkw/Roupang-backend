@@ -145,7 +145,7 @@ public class JwtTokenProvider {
     public Member getMember(String jwtToken){
         String memberEmail = getEmail(jwtToken);
         return memberRepository.findByEmail(memberEmail).orElseThrow(()
-                -> new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_EMAIL));
+                -> new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND_EMAIL));
     }
 }
 
