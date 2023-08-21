@@ -32,7 +32,7 @@ public class CartOrderService {
     // todo: 장바구니 상품값을 가져와서 Single_orders테이블에 넣고 idx값을 가지고 Grouped_order 테이블을 만들고 Grouped_order 테이블 고유번호를 뽑는다
     @Transactional
     public void purchaseItemsFromCart(Integer memberId, List<PurchaseItemRequest> requests) {
-        Member bymember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_USER));
+        Member bymember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.CART_USER_NOT_FOUND));
         Instant now = Instant.now();
         // Grouped_order 테이블 식별값
         String groupedId = bymember.getNickname() + now;
@@ -42,7 +42,7 @@ public class CartOrderService {
 
 
         for (PurchaseItemRequest request : requests) {
-            Product product = productRepository.findById(request.getProductIdx()).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+            Product product = productRepository.findById(request.getProductIdx()).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
             SingleOrder singleOrder = new SingleOrder();
             singleOrder.setMemberIdx(bymember);
             singleOrder.setProductIdx(product);
@@ -59,7 +59,7 @@ public class CartOrderService {
         // bySaveAll 리스트만큼 order 값을 set 해줌
         for (SingleOrder order : bySaveAll) {
             // SingleOrder 데이터를 객체로 받아옵니다.
-            SingleOrder singleOrder = singleOrderRepository.findById(order.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_SINGLE_ORDER));
+            SingleOrder singleOrder = singleOrderRepository.findById(order.getId()).orElseThrow(() -> new CustomException(ErrorCode.CART_SINGLE_ORDER_NOT_FOUND));
             // 리스트형태가 아닌 GroupedOrder 객체를 선언
             GroupedOrder groupedOrder = new GroupedOrder();
             // 데이터 하나씩 추가
@@ -84,9 +84,9 @@ public class CartOrderService {
         // 그룹 묶음 전체
         List<GroupedOrder> groupedOrderList = groupedOrderRepository.findByGroupedId(groupedId);
         // 유저 객체
-        Member member = memberRepository.findById(groupedOrder.getSingleOrders().getMemberIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_USER));
+        Member member = memberRepository.findById(groupedOrder.getSingleOrders().getMemberIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.CART_USER_NOT_FOUND));
         // 결제수단 1.슈퍼포인트결제
-        PaymentMethod paymentMethod = paymentMethodRepository.findById(1).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUNT_PAY));
+        PaymentMethod paymentMethod = paymentMethodRepository.findById(1).orElseThrow(() -> new CustomException(ErrorCode.CART_PAYMENT_METHOD_NOT_FOUND));
 
 
         // 주문하려는 상품의 낱개 갯수 파악
@@ -114,14 +114,14 @@ public class CartOrderService {
 
         // 결제 후 유저포인트가 0보다 많은지 확인
         if (minusPoint < 0) {
-            throw new CustomMessageException(ErrorCode.LACKING_USER_POINT, "유저 잔여 포인트", String.valueOf(member.getUserPoint()));
+            throw new CustomMessageException(ErrorCode.CART_ORDER_INSUFFICIENT_USER_POINT, "유저 잔여 포인트", String.valueOf(member.getUserPoint()));
         }
 
 
         // 장바구니 상품마다 돌면서 구매수량을 뽑아 상품의 재고를 차감한다
         // 차감 시 재고가 0이랑 같거나 적으면 적으면 예외처리
         for (GroupedOrder order : groupedOrderList) {
-            Product product = productRepository.findById(order.getSingleOrders().getProductIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_PRODUCT));
+            Product product = productRepository.findById(order.getSingleOrders().getProductIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
 
             Integer stock = order.getSingleOrders().getProductIdx().getStock();
             Integer amount = order.getSingleOrders().getAmount();
@@ -129,7 +129,7 @@ public class CartOrderService {
             // 상품 제고 수량 파악해서 재고가 없으면 예외처리
             Integer updatedStock = stock - amount;
             if (updatedStock < 0) {
-                throw new CustomMessageException(ErrorCode.NOT_STOCK_PRODUCT, product.getProductName() + " 상품의 재고수량:", String.valueOf(stock));
+                throw new CustomMessageException(ErrorCode.CART_ORDER_PRODUCT_OUT_OF_STOCK, product.getProductName() + " 상품의 재고수량:", String.valueOf(stock));
             }
             product.setStock(updatedStock);
             productRepository.save(product);

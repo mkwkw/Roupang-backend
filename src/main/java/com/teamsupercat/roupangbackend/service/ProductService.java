@@ -63,7 +63,7 @@ public class ProductService {
 
             return newSeller.getId();
 
-        } else throw new CustomException(ErrorCode.USER_NOTFOUND);
+        } else throw new CustomException(ErrorCode.SHOP_USER_NOT_FOUND);
 
     }
 
@@ -78,7 +78,7 @@ public class ProductService {
         */
 
         //멤버 찾기 없으면 에러
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.SHOP_USER_NOT_FOUND));
 
         //판매자 등록 여부
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
@@ -99,7 +99,7 @@ public class ProductService {
             List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
             insertProductOptions(savedProduct, optionTypeRequests);
         } else {
-            throw new CustomException(ErrorCode.SELLER_ONLY); //에러: 판매자만 물품 등록 할 수 있습니다.
+            throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS); //에러: 판매자만 물품 등록 할 수 있습니다.
         }
     }
 
@@ -109,13 +109,13 @@ public class ProductService {
     public ProductResponse getProductOne(Integer productId) throws ParseException {
 
         //product 찾기, 없으면 에러
-        Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
 
 //      //product 찾기
 //      Product product = productRepository.findProductByIsDeletedAndId(false, productId);
 
         //product 카테고리 찾기, 없으면 에러(영속화)
-        ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.CATEGORY_NOTFOUND));
+        ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_CATEGORY_NOT_FOUND));
 
         //singerOrder 개별 주문 결제건 리스트 찾기
         List<SingleOrder> singleOrders = singleOrderRepository.findByProductIdx(product);
@@ -170,7 +170,7 @@ public class ProductService {
        size: 한 페이지에 노출할 데이터 건수 */
     public List<AllProductsResponse> getProductsList(String order, Pageable pageable, Integer memberId) {
         //멤버 찾기 없으면 에러
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.SHOP_USER_NOT_FOUND));
 
         //판매자 등록 여부
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
@@ -188,7 +188,7 @@ public class ProductService {
 
             if (productList.isEmpty()) {
                 //판매자로 등록했지만 파는 물품이 없는 경우, 에러
-                throw new CustomException(ErrorCode.NOTFOUND_PRODUCT);
+                throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
             } else {
 
                 //높은 가격순: 파마미터로 그냥 pageable만 넣으면 전체조회가 되어버린다. 판매자 기준으로 필터링한 상태에서 정렬하고 싶으면 Seller도 파라미터로 넣어줘야 한다.
@@ -211,7 +211,7 @@ public class ProductService {
                 //Entity -> Dto로 변환
                 allProductsResponses = productList.map(product -> AllProductsResponse.fromProduct(product));
             }
-        } else throw new CustomException(ErrorCode.SELLER_ONLY);
+        } else throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
 
         List<AllProductsResponse> contentList = allProductsResponses.getContent();
 
@@ -221,9 +221,9 @@ public class ProductService {
     //todo 5. 판매자의 판매 물품 수정
     @Transactional
     public void updateProduct(Integer productId, Integer memberId, ProductCreateRequest productCreateRequest) throws ParseException {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.SHOP_USER_NOT_FOUND));
 
-        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
 
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
 
@@ -240,17 +240,17 @@ public class ProductService {
                 List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
                 insertProductOptions(savedProduct, optionTypeRequests);
 
-            } else throw new CustomException(ErrorCode.MISMATCH_SELLER);
+            } else throw new CustomException(ErrorCode.SHOP_MISMATCH_SELLER);
 
-        } else throw new CustomException(ErrorCode.SELLER_ONLY);
+        } else throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
 
     }
     //todo 6. 판매자의 판매 물품 삭제
     @Transactional
     public void deleteProduct(Integer productId, Integer memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOTFOUND));
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.SHOP_USER_NOT_FOUND));
 
-        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+        Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
 
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
 
@@ -265,8 +265,8 @@ public class ProductService {
                 deleteProductOptions(productId);
                 productRepository.deleteById(productId);}
 
-            } else throw new CustomException(ErrorCode.MISMATCH_SELLER);
-        } else throw new CustomException(ErrorCode.SELLER_ONLY);
+            } else throw new CustomException(ErrorCode.SHOP_MISMATCH_SELLER);
+        } else throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
     }
 
     //todo 물품 옵션 삭제 메소드

@@ -33,13 +33,13 @@ public class CartService {
     public void cartProductPlus(Member member, CartChangeRequest cartChangeRequest) {
 
         // 추가하려는 상품 검색
-        Product product = productRepository.findById(cartChangeRequest.getProductIdx()).orElseThrow(() -> new CustomException(ErrorCode.NOTFOUND_PRODUCT));
+        Product product = productRepository.findById(cartChangeRequest.getProductIdx()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
 
         // 상품이 품절이거나 재고보다 많이 담으려하면 예외처리
         if (product.getStock() <= 0) {
-            throw new CustomException(ErrorCode.NOTFOUND_PRODUCT_STOCK);
+            throw new CustomException(ErrorCode.CART_NOTFOUND_PRODUCT_STOCK);
         } else if (product.getStock() < cartChangeRequest.getAmount()) {
-            throw new CustomMessageException(ErrorCode.OUT_OF_STOCK, "재고", String.valueOf(product.getStock()));
+            throw new CustomMessageException(ErrorCode.CART_OUT_OF_STOCK, "재고", String.valueOf(product.getStock()));
         }
 
         // 장바구니에 제품 등록여부 확인(아래에서 사용하므로 예외처리 X)
@@ -76,14 +76,14 @@ public class CartService {
     @Transactional
     public void removeCartItem(Member member, RemoveCartRequest request) {
         // 삭제할 상품 검색
-        Product product = productRepository.findById(request.getProductDel()).orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOTFOUND));
+        Product product = productRepository.findById(request.getProductDel()).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
 
         // 삭제할 상품이 장바구니에 담겨있는지 확인
         Optional<Cart> optionalCartProduct = cartRepository.findByMemberIdxAndProductIdxAndIsDeletedFalse(member, product);
 
         // 장바구니에 상품이 담겨있지 않으면 예외처리
         if (optionalCartProduct.isEmpty()) {
-            throw new CustomException(ErrorCode.CART_NOT_PRODUCT);
+            throw new CustomException(ErrorCode.CART_ITEM_NOT_PRODUCT);
         }
 
         // 해당 상품번호를 가진 아이템을 장바구니에서 삭제
@@ -99,7 +99,7 @@ public class CartService {
 
         // 장바구니에 담겨있는 상품이 없을 시 예외처리
         if (myCartList.isEmpty()) {
-            throw new CustomException(ErrorCode.NOT_DEL_PRODUCT);
+            throw new CustomException(ErrorCode.CART_EMPTY_PRODUCT);
         }
 
         // 장바구니 상품을 하나씩 논리삭제
