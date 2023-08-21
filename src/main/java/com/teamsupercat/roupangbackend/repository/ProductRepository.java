@@ -39,6 +39,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Product findProductById(int productIdx);
 
+
     //:seller는 나중에 매개변수인 'seller' 변수로 대체되는 부분
     //LEFT JOIN: 왼쪽 테이블(Product)의 모든 레코드를 포함하는 결과를 가져옴, 판매량이 없는 상품도 결과에 포함될 수 있다.
     @Query("SELECT p " +
@@ -48,4 +49,16 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
             "ORDER BY SUM(so.amount) DESC")
     Page<Product> findBySellerOrderBySalesAmounts(Seller seller, Pageable pageable);
 
+
+    Page<Product> findProductByProductNameContaining(String keyword, Pageable pageable);
+
+    Page<Product> findProductByProductNameContainingOrderByPriceDesc(String keyword, Pageable pageable);
+
+    Page<Product> findProductByProductNameContainingOrderByPrice(String keyword, Pageable pageable);
+
+    Page<Product> findProductByIsDeletedAndPriceGreaterThanOrderByPrice(boolean isDeleted, Long price, Pageable pageable);
+
+    Page<Product> findProductByIsDeletedAndPriceGreaterThanOrderByPriceDesc(boolean isDeleted, Long price, Pageable pageable);
+
+    Page<Product> findProductByIsDeletedAndPriceGreaterThan(boolean isDeleted, Long price, Pageable pageable);
 }

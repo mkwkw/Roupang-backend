@@ -304,11 +304,11 @@ public class ProductService {
         Page<Product> productEntities;
 
         if (order.equals("priceAsc")) { //가격 오름차순
-            productEntities = productRepository.findProductByOrderByPrice(pageable);
+            productEntities = productRepository.findProductByIsDeletedAndPriceGreaterThanOrderByPrice(false, 0L, pageable);
         } else if (order.equals("priceDesc")) { //가격 내림차순
-            productEntities = productRepository.findProductByOrderByPriceDesc(pageable);
+            productEntities = productRepository.findProductByIsDeletedAndPriceGreaterThanOrderByPriceDesc(false, 0L, pageable);
         } else { //등록순
-            productEntities = productRepository.findAll(pageable);
+            productEntities = productRepository.findProductByIsDeletedAndPriceGreaterThan(false, 0L, pageable);
         }
 
         //TODO. 인기순(판매량순)
@@ -337,6 +337,29 @@ public class ProductService {
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
 
+    public Page<ProductResponse> searchProduct(String keyword, String order, Pageable pageable){
+        Page<Product> productEntities;
+
+        if(order.equals("priceAsc")){ //가격 오름차순
+            productEntities = productRepository.findProductByProductNameContainingOrderByPrice(keyword, pageable);
+        }
+        else if(order.equals("priceDesc")){ //가격 내림차순
+            productEntities = productRepository.findProductByProductNameContainingOrderByPriceDesc(keyword, pageable);
+        }
+        else{ //등록순
+            productEntities = productRepository.findProductByProductNameContaining(keyword, pageable);
+        }
+
+        //TODO. 예외처리
+//        if(productEntities.isEmpty()){
+//            throw new CustomException(ErrorCode);
+//        }
+
+        //TODO. 인기순(판매량순)
+
+
+        return productEntities.map(product -> new ProductResponse().toDto(product));
+    }
 
 }
 
