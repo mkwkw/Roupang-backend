@@ -73,9 +73,18 @@ public enum ErrorCode {
     // 리프래시 토큰
     REFRESH_TOKEN_NOT_FOUND_MEMBER_IDX(HttpStatus.BAD_REQUEST, "해당 유저의 식별값을 찾을 수 없습니다."),
     REFRESH_TOKEN_NOT_VALID_TOKEN(HttpStatus.BAD_REQUEST, "해당 토큰은 유효하지 않습니다."),
-    REFRESH_TOKEN_NOT_FOUND_EMAIL(HttpStatus.BAD_REQUEST, "해당 이메일은 존재하지 않습니다."),
-    REFRESH_TOKEN_NOT_FOUND_TOKEN(HttpStatus.BAD_REQUEST, "맴버에 해당하는 토큰을 찾을수 없습니다."),
-    REFRESH_TOKEN_REFRESH_FAILED(HttpStatus.BAD_REQUEST, "토큰 재발급의 실패 하였습니다");
+    REFRESH_TOKEN_NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "해당 이메일은 존재하지 않습니다."),
+    REFRESH_TOKEN_NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "맴버에 해당하는 토큰을 찾을수 없습니다."),
+    REFRESH_TOKEN_REFRESH_FAILED(HttpStatus.BAD_REQUEST, "토큰 재발급의 실패 하였습니다."),
+
+
+    // 이메일 인증
+    EMAIL_VERIFICATION_NOT_FOUND_USER(HttpStatus.NOT_FOUND , "해당 유저를 찾을 수 없습니다."),
+    EMAIL_VERIFICATION_CODE_FAILED(HttpStatus.BAD_REQUEST,"인증 번호가 틀립니다."),
+    EMAIL_VERIFICATION_EXPIRED_DATE(HttpStatus.BAD_REQUEST,"인증 시간이 만료되었습니다."),
+    EMAIL_VERIFICATION_SEND_FAILED(HttpStatus.BAD_REQUEST,"인증 메일 전송에 실패하였습니다.")
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String errorMsg;
