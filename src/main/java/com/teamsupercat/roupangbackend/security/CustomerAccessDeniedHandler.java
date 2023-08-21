@@ -1,4 +1,5 @@
 package com.teamsupercat.roupangbackend.security;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -15,6 +16,6 @@ public class CustomerAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         accessDeniedException.printStackTrace();
-        response.sendRedirect("/exceptions/access-denied");
+        response.sendRedirect("/api/v1/Exception");
     }
 }
