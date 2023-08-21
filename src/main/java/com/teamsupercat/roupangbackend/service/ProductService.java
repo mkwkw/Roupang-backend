@@ -304,11 +304,11 @@ public class ProductService {
         Page<Product> productEntities;
 
         if (order.equals("priceAsc")) { //가격 오름차순
-            productEntities = productRepository.findProductByIsDeletedAndPriceGreaterThanOrderByPrice(false, 0L, pageable);
+            productEntities = productRepository.findProductByIsDeletedAndStockGreaterThanOrderByPrice(false, 0, pageable);
         } else if (order.equals("priceDesc")) { //가격 내림차순
-            productEntities = productRepository.findProductByIsDeletedAndPriceGreaterThanOrderByPriceDesc(false, 0L, pageable);
+            productEntities = productRepository.findProductByIsDeletedAndStockGreaterThanOrderByPriceDesc(false, 0, pageable);
         } else { //등록순
-            productEntities = productRepository.findProductByIsDeletedAndPriceGreaterThan(false, 0L, pageable);
+            productEntities = productRepository.findProductByIsDeletedAndStockGreaterThan(false, 0, pageable);
         }
 
         //TODO. 인기순(판매량순)
