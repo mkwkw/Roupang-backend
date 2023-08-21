@@ -1,6 +1,7 @@
 package com.teamsupercat.roupangbackend.controller;
 
 import com.teamsupercat.roupangbackend.common.ResponseDto;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest;
 import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
@@ -131,6 +132,12 @@ public class ProductController {
     @GetMapping("/products/option/search")
     public ResponseDto<?> findProductsByOption(@RequestParam("option-name") List<String> options){
         return ResponseDto.success(optionService.findProductByOptionDetailName(options));
+    }
+
+    @ApiOperation("뭂품 옵션 등록")
+    @PostMapping("/products/option/register")
+    public ResponseDto<?> registerOptionOfProduct(@RequestBody OptionRegisterRequest optionRegisterRequest){
+        return ResponseDto.success(optionService.registerOptionOfProduct(optionRegisterRequest));
     }
 
 }
