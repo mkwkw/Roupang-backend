@@ -21,10 +21,6 @@ public class OptionType {
     @Column(name = "idx", nullable = false)
     private Integer id;
 
-    //TODO. 외래키 연관관계 넣기
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "product_idx", nullable = false)
-//    private Product productIdx;
     @Column(name = "product_idx", nullable = false)
     private Integer productIdx;
 

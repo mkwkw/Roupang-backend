@@ -3,8 +3,7 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionDetailRequest;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionTypeRequest;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
@@ -22,7 +21,6 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -96,8 +94,14 @@ public class ProductService {
 
             //판매 물품 옵션
             //List<OptionTypeRequest> 정의
-            List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
-            insertProductOptions(savedProduct, optionTypeRequests);
+            List<OptionRegisterRequest1> optionRegisterRequests = productCreateRequest.getOptions();
+
+            if(!productCreateRequest.getExistsOption()) {
+                productRepository.save(savedProduct);
+
+            } else {
+                insertProductOptions(savedProduct, optionRegisterRequests);
+            }
         } else {
             throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS); //에러: 판매자만 물품 등록 할 수 있습니다.
         }
@@ -237,8 +241,8 @@ public class ProductService {
 
                 //option: 삭제 후 재등록
                 deleteProductOptions(productId);
-                List<OptionTypeRequest> optionTypeRequests = productCreateRequest.getOptions();
-                insertProductOptions(savedProduct, optionTypeRequests);
+                List<OptionRegisterRequest1> optionRegisterRequests = productCreateRequest.getOptions();
+                insertProductOptions(savedProduct, optionRegisterRequests);
 
             } else throw new CustomException(ErrorCode.SHOP_MISMATCH_SELLER);
 
@@ -285,36 +289,13 @@ public class ProductService {
     }
 
     //todo 물품 옵션 등록 메소드
-    public void insertProductOptions(Product savedProduct, List<OptionTypeRequest> optionTypeRequests) {
-        //optionTypeRequest 하나하나를 각각의 optionType으로 바꿔주는 로직
-        List<OptionType> optionTypes = optionTypeRequests.stream()
-                .map(optionTypeRequest -> {
-                    OptionType optionType = optionTypeRequest.createOptionType(savedProduct);
-                    optionTypeRepository.save(optionType);
-
-                    //List<OptionDetailRequest> 정의
-                    List<OptionDetailRequest> optionDetailRequests = optionTypeRequest.getOptionDetails();
-
-                    //optionDetailRequest 리스트를 순회하면서 각 요소마다 OptionDetail 엔티티를 생성
-                    List<OptionDetail> optionDetails = optionDetailRequests.stream().map(optionDetailRequest -> {
-                        OptionDetail optionDetail = optionDetailRequest.createOptionDetail(savedProduct, optionType);
-                        return optionDetailRepository.save(optionDetail); //저장 후 반환
-                    }).collect(Collectors.toList());
-
-                    //String optionDetailIdxString 은 optionDetail 엔티티 하나하나 안에서마다 optionDetail의 id를 String의 값으로 바꾸고 이 문자열 요소들을 모으는데 1 2 3 이 아니라 1,2,3 이 되게끔 ","을 중간마다 붙인다.
-                    String optionDetailIdxString = optionDetails.stream().map(optionDetail -> String.valueOf(optionDetail.getId())).collect(Collectors.joining(","));
-
-                    //optionType 엔티티의 OptionDetailIdx에 optionDetailIdxString을 넣어준다.
-                    optionType.setOptionDetailIdx(optionDetailIdxString);
-                    optionTypeRepository.save(optionType); //업데이트
-
-                    return optionType;
-                }).collect(Collectors.toList());
-
-        optionTypeRepository.saveAll(optionTypes);
+    public void insertProductOptions(Product savedProduct, List<OptionRegisterRequest1> optionRegisterRequests) {
+        for (OptionRegisterRequest1 optionRegisterRequest : optionRegisterRequests) {
+            // OptionService의 registerOptionOfProduct 메소드를 호출하여 옵션 등록
+            optionService.registerOptionOfProduct(optionRegisterRequest, savedProduct);
+        }
         productRepository.save(savedProduct);
     }
-
 
 
     //물품 전체 조회

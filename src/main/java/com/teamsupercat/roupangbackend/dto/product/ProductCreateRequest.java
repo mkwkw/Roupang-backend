@@ -3,7 +3,7 @@ package com.teamsupercat.roupangbackend.dto.product;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teamsupercat.roupangbackend.common.DateUtils;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionTypeRequest;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
 import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.entity.ProductsCategory;
 import com.teamsupercat.roupangbackend.entity.Seller;
@@ -28,7 +28,11 @@ public class ProductCreateRequest {
     private Integer categoryIdx;
     private String productImg;
     private String descriptionImg;
-    private List<OptionTypeRequest> options;
+    private Boolean existsOption;
+    private List<OptionRegisterRequest1> options;
+
+
+
 
 
     public Product toEntity(ProductCreateRequest productCreateRequest, Seller seller) throws ParseException {
