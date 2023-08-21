@@ -14,7 +14,7 @@
     @RestController
     @RequiredArgsConstructor
     @Slf4j
-    @RequestMapping("/api/v1/refreshTokenEndpoint")
+    @RequestMapping("/api/v1/refresh")
     public class RefreshController {
 
         private final RefreshTokenService refreshTokenService;
