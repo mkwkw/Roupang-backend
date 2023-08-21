@@ -21,7 +21,7 @@ public class Seller {
     @Column(name = "idx", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_idx", nullable = false)
     private Member memberIdx;
 

@@ -20,6 +20,10 @@ public class PointTransaction {
     @JoinColumn(name = "member_idx", nullable = false)
     private Member memberIdx;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "payments_idx", nullable = false)
+    private Member paymentIdx;
+
     @Column(name = "transaction_type", nullable = false, length = 50)
     private String transactionType;
 
