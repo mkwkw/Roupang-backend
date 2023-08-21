@@ -92,6 +92,17 @@ public class ProductController {
         return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 업데이트되었습니다.", null);
     }
 
+    @ApiOperation(value= "판매자의 판매 물품 삭제 ", notes = "판매자의 판매 물품 삭제")
+    @DeleteMapping("/seller/products/{product_id}")
+    public ResponseDto<Object> deleteProduct(@PathVariable("product_id") Integer productId,
+                                             @AuthenticationPrincipal CustomUserDetail userDetails) throws ParseException {
+
+        Integer memberId = userDetails.getMemberIdx();
+        productService.deleteProduct(productId, memberId);
+
+        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 삭제되었습니다.", null);
+    }
+
 
 
 
