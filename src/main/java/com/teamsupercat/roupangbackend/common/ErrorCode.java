@@ -48,13 +48,14 @@ public enum ErrorCode {
 
     // 상품
     CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다."),
-    SELLER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
+    SHOP_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다."),
     CART_NOTFOUND_PRODUCT_STOCK(HttpStatus.NOT_FOUND, "현재 상품은 품절입니다."),
     CART_OUT_OF_STOCK(HttpStatus.NOT_FOUND, "개의 상품 수량보다 많이 선택하셨습니다."),
     SHOP_OPTION_TYPE_NAME_NOT_FOUND(HttpStatus.NOT_FOUND, "옵션 타입을 찾을 수 없습니다."),
 
     //판매자
     SELLER_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저가 존재하지 않습니다."),
+    SELLER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
 
     // 카테고리
     SHOP_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."),
