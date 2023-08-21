@@ -55,6 +55,9 @@ public class Member {
     @Column(name = "user_point")
     private Long userPoint;
 
+    @OneToOne(mappedBy = "memberIdx")
+    private Seller seller;
+
     public void deleteMember(){
         this.isDeleted = true;
     }
