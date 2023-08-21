@@ -7,6 +7,7 @@
     import lombok.RequiredArgsConstructor;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
+    import org.springframework.http.HttpMethod;
     import org.springframework.security.config.annotation.web.builders.HttpSecurity;
     import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
     import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,9 +38,9 @@
                     .cors()
                     .and()
                     .authorizeRequests()
-//                    .antMatchers("/api/v1/mypage","/api/v1/mypage/*","/api/v1/order","/api/v1/cart","/api/v1/member/logout","/api/v1/member/delete","/api/v1/refresh","/api/v1/products/option/register","/api/v1/seller/signup","/api/v1/seller/products/register","/api/v1/seller/products/register").authenticated()
-//                    .antMatchers(HttpMethod.DELETE,"/api/v1/seller/products/*").authenticated()
-//                    .antMatchers(HttpMethod.PATCH,"/api/v1/seller/products/*").authenticated() 시큐리티 단 인증 처리완료
+                    .antMatchers("/api/v1/mypage","/api/v1/mypage/*","/api/v1/order","/api/v1/cart","/api/v1/member/logout","/api/v1/member/delete","/api/v1/refresh","/api/v1/products/option/register","/api/v1/seller/signup","/api/v1/seller/products/register","/api/v1/seller/products/register").authenticated()
+                    .antMatchers(HttpMethod.DELETE,"/api/v1/seller/products/*").authenticated()
+                    .antMatchers(HttpMethod.PATCH,"/api/v1/seller/products/*").authenticated()
                     .antMatchers("/resources/static/**","/api/v1/**").permitAll()
                     .and()
                     .exceptionHandling()
