@@ -151,4 +151,11 @@ public class ProductController {
         return ResponseDto.success(optionService.registerOptionOfProduct(optionRegisterRequest));
     }
 
+    @ApiOperation("물품 검색")
+    @GetMapping("/products/search")
+    public ResponseDto<?> searchProduct(@RequestParam("keyword") String keyword, @RequestParam(value = "order", required = false) String order, Pageable pageable){
+        return ResponseDto.success(productService.searchProduct(keyword, order, pageable));
+    }
+
+
 }
