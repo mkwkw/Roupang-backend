@@ -56,4 +56,9 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 
     Page<Product> findProductByProductNameContainingOrderByPrice(String keyword, Pageable pageable);
 
+    Page<Product> findProductByIsDeletedAndPriceGreaterThanOrderByPrice(boolean isDeleted, Long price, Pageable pageable);
+
+    Page<Product> findProductByIsDeletedAndPriceGreaterThanOrderByPriceDesc(boolean isDeleted, Long price, Pageable pageable);
+
+    Page<Product> findProductByIsDeletedAndPriceGreaterThan(boolean isDeleted, Long price, Pageable pageable);
 }
