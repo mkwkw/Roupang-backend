@@ -38,7 +38,7 @@ public class MemberService {
 
         if (emailCheck) throw new CustomException(ErrorCode.SIGNUP_DUPLICATE_EMAIL);
         if (nickNameCheck) throw new CustomException(ErrorCode.SIGNUP_DUPLICATE_NICKNAME);
-        if (phoneNumberCheck) throw new CustomException(ErrorCode.SIGNUP_DUPLICATE_PHONENUMBER);
+        if (phoneNumberCheck) throw new CustomException(ErrorCode.SIGNUP_DUPLICATE_PHONE_NUMBER);
 
         signupRequestDto.setPassword(passwordEncoder.encode(signupRequestDto.getPassword()));
 
@@ -52,7 +52,7 @@ public class MemberService {
     @Transactional
     public ResponseDto<?> deleteMember(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.SIGNOUT_NOT_FOUND_EMAIL));
+                .orElseThrow(() -> new CustomException(ErrorCode.SIGN_OUT_NOT_FOUND_EMAIL));
 
         member.deleteMember();
 

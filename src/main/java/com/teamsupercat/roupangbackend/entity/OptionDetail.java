@@ -1,8 +1,10 @@
 package com.teamsupercat.roupangbackend.entity;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Builder
 @AllArgsConstructor
@@ -30,6 +32,13 @@ public class OptionDetail {
 
     @Column(name = "option_type_name_idx", nullable = false)
     private Integer optionTypeNameIdx;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false)
+    private Timestamp createdAt;
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     public OptionDetail(Product product, String optionDetailName, Integer optionTypeIdx, Integer optionTypeNameIdx){
         this.productIdx = product;

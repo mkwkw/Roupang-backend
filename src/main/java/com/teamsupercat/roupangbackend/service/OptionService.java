@@ -3,6 +3,7 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.dto.option.OptionDetailResponse;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.entity.OptionDetail;
 import com.teamsupercat.roupangbackend.entity.OptionType;
@@ -151,5 +152,44 @@ public class OptionService {
         optionTypeRepository.save(optionType);
 
         return findOptionByProductIdx(productIdx);
+    }
+
+    @Transactional
+    public void registerOptionOfProduct(OptionRegisterRequest1 optionRegisterRequest, Product savedProduct){
+
+//      int productIdx = optionRegisterRequest.getProductIdx();
+        String optionTypeName = optionRegisterRequest.getOptionTypeName();
+        List<String> optionDetailNames = optionRegisterRequest.getOptionDetailNames();
+        Integer optionTypeNameIdx = 0;
+
+        Product product = productRepository.findProductById(savedProduct.getId());
+
+        //option type name
+        Optional<OptionTypeName> optionTypeName1 = optionTypeNameRepository.findOptionTypeNameByOptionName(optionTypeName);
+
+        if(optionTypeName1.isEmpty()){
+            optionTypeNameIdx = optionTypeNameRepository.save(new OptionTypeName(optionTypeName)).getId();
+        }
+        else{
+            optionTypeNameIdx = optionTypeName1.get().getId();
+        }
+
+        //option type
+        OptionType optionType = optionTypeRepository.save(new OptionType(savedProduct.getId(), optionTypeNameIdx, ""));
+
+        //option detail
+        StringBuilder optionDetailIdxSb = new StringBuilder();
+        for(String optionDetailName : optionDetailNames){
+            OptionDetail optionDetail = optionDetailRepository.save(new OptionDetail(product, optionDetailName, optionType.getId(), optionTypeNameIdx));
+            optionDetailIdxSb.append(optionDetail.getId());
+            optionDetailIdxSb.append(",");
+        }
+
+        optionDetailIdxSb.deleteCharAt(optionDetailIdxSb.length()-1);
+
+        optionType.setOptionDetailIdx(optionDetailIdxSb.toString());
+        optionTypeRepository.save(optionType);
+
+//        return findOptionByProductIdx(savedProduct.getId();
     }
 }

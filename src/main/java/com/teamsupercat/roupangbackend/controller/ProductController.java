@@ -1,8 +1,8 @@
 package com.teamsupercat.roupangbackend.controller;
 
 import com.teamsupercat.roupangbackend.common.ResponseDto;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest;
 import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
@@ -90,6 +90,17 @@ public class ProductController {
         productService.updateProduct(productId, memberId, productCreateRequest);
 
         return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 업데이트되었습니다.", null);
+    }
+
+    @ApiOperation(value= "판매자의 판매 물품 삭제 ", notes = "판매자의 판매 물품 삭제")
+    @DeleteMapping("/seller/products/{product_id}")
+    public ResponseDto<Object> deleteProduct(@PathVariable("product_id") Integer productId,
+                                             @AuthenticationPrincipal CustomUserDetail userDetails) throws ParseException {
+
+        Integer memberId = userDetails.getMemberIdx();
+        productService.deleteProduct(productId, memberId);
+
+        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 삭제되었습니다.", null);
     }
 
 

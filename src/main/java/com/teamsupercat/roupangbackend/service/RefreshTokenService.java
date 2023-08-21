@@ -32,7 +32,7 @@ public class RefreshTokenService {
 
         Integer memberId = jwtTokenProvider.getMemberIdx(jwtToken);
 
-        RefreshToken token = refreshTokenRepository.findByMemberIdx(memberId).orElseThrow(() -> new CustomException(ErrorCode.REFRESHTOKEN_NOT_FOUND_TOKEN));
+        RefreshToken token = refreshTokenRepository.findByMemberIdx(memberId).orElseThrow(() -> new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND_TOKEN));
         //영속성 콘테스트에 저장
 
         Member member = jwtTokenProvider.getMember(jwtToken);
