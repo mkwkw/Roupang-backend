@@ -32,7 +32,10 @@ public class SingleOrder {
     @Column(name = "order_date", nullable = false)
     private Instant orderDate;
 
+    @Builder.Default()
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "option_detail")
+    private String optionDetail;
 }
