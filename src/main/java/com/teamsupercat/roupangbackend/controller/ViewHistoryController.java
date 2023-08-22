@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Api(tags = "뷰 히스토리 API")
+@Api(tags = "최근 본 상품조회 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
@@ -24,7 +24,6 @@ public class ViewHistoryController {
     @ApiOperation(value = "최근 본 상품목록 조회")
     @PostMapping("/view_history")
     public ResponseDto<?> viewHistory(@RequestBody List<ViewHistoryRequest> viewHistoryRequest) {
-        log.info(viewHistoryRequest.toString());
         List<ViewHistoryResponse> historyResponses = viewHistoryService.viewHistory(viewHistoryRequest);
         return ResponseDto.success(historyResponses);
     }

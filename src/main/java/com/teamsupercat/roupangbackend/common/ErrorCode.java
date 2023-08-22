@@ -73,6 +73,8 @@ public enum ErrorCode {
 
     // 개별주문 테이블
     CART_SINGLE_ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "개별주문 항목을 가져오지 못했습니다."),
+    CART_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "선택한 옵션이 존재하지 않습니다."),
+
 
     // 리프래시 토큰
     REFRESH_TOKEN_NOT_FOUND_MEMBER_IDX(HttpStatus.BAD_REQUEST, "해당 유저의 식별값을 찾을 수 없습니다."),
