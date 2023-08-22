@@ -3,7 +3,7 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.ResponseDto;
-import com.teamsupercat.roupangbackend.dto.myPage.MyPageDto;
+import com.teamsupercat.roupangbackend.dto.MyPageDto;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

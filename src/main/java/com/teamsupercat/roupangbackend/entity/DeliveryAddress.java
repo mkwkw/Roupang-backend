@@ -1,9 +1,7 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import lombok.*;
 import javax.persistence.*;
 
 @Entity
@@ -15,10 +13,10 @@ public class DeliveryAddress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idx",nullable = false)
-    private Integer idx;
+    @Column(name = "idx", nullable = false)
+    private Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "recipient", nullable = false)
     private String recipient;
 
     @Column(name = "recipient_phone", nullable = false)
@@ -34,4 +32,5 @@ public class DeliveryAddress {
     private String deliveryMemo;
 
 }
+
 
