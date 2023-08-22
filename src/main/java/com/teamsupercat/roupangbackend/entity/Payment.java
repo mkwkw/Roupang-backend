@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Payments", schema = "supercat")
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idx", nullable = false)
@@ -20,12 +21,12 @@ public class Payment {
     private Member memberIdx;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "grouped_order_idx", nullable = false)
-    private GroupedOrder groupedOrderIdx;
+    @JoinColumn(name = "delivery_address_idx", nullable = false)
+    private DeliveryAddress deliveryAddress;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_methods_idx", nullable = false)
-    private PaymentMethod paymentMethodsIdx;
+    @JoinColumn(name = "grouped_order_idx", nullable = false)
+    private GroupedOrder groupedOrderIdx;
 
     @Column(name = "payment_total_amount", nullable = false)
     private Long paymentTotalAmount;
