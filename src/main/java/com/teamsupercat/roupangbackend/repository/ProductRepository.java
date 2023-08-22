@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -69,4 +70,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Modifying
     @Query(value = "UPDATE Product p SET p.isDeleted = true WHERE p.id=:idx ")
     void deleteProduct(@Param("idx") Integer productId);
+
+    @Query(value = "select p.idx, p.products_category_idx, p.seller_idx, p.product_name, p.product_img, p.description, p.description_img, p.price, p.stock, p.sales_end_date, sum(s.amount) as sales_total from single_orders s right join product p on s.product_idx = p.idx group by p.idx order by sales_total desc", nativeQuery = true)
+    List<Map<String, Object>> findAllProductsBySingleOrder();
+
+    @Query(value = "SELECT p.idx, p.products_category_idx, p.seller_idx, p.product_name, p.product_img, p.description, p.description_img, p.price, p.stock, p.sales_end_date, SUM(s.amount) AS sales_total FROM single_orders s RIGHT JOIN product p ON s.product_idx = p.idx WHERE p.products_category_idx=:categoryIdx GROUP By p.idx Order By sales_total DESC", nativeQuery = true)
+    List<Map<String, Object>> findProductsBySingleOrderAndCategoryIdx(@Param("categoryIdx") Integer categoryIdx);
+
+    @Query(value = "SELECT p.idx, p.products_category_idx, p.seller_idx, p.product_name, p.product_img, p.description, p.description_img, p.price, p.stock, p.sales_end_date, SUM(s.amount) AS sales_total FROM single_orders s RIGHT JOIN product p ON s.product_idx = p.idx WHERE p.product_name Like %?1% GROUP By p.idx Order By sales_total DESC", nativeQuery = true)
+    List<Map<String, Object>> findProductsBySingleOrderAndKeyword(String keyword);
 }

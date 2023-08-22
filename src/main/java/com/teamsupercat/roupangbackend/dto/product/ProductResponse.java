@@ -31,7 +31,6 @@ public class ProductResponse {
     private String salesEndDate;
     private List<OptionTypeResponse> options;
 
-
     public ProductResponse toDto(Product product){
 
         String endDateStr;
