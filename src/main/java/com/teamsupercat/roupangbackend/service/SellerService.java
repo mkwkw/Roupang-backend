@@ -135,22 +135,23 @@ public class SellerService {
                 //판매자로 등록했지만 파는 물품이 없는 경우, 에러(204, No_Content)
                 throw new CustomException(ErrorCode.SELLER_PRODUCT_EMPTY_LIST);
             } else {
-
-                //높은 가격순: 파마미터로 그냥 pageable만 넣으면 전체조회가 되어버린다. 판매자 기준으로 필터링한 상태에서 정렬하고 싶으면 Seller도 파라미터로 넣어줘야 한다.
-                if (order.equals("낮은가격")) {
-                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPrice(false, 0, sellerFound, pageable);
-                }
-                //낮은 가격순
-                else if (order.equals("높은가격")) {
-                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPriceDesc(false, 0, sellerFound, pageable);
-                }
-                //최신순
-                else if (order.equals("신상품")) {
+                //"order=" 적지 않은 경우, 디폴트는 최신순
+                if(order == null || order.isEmpty()){
                     productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByCreatedAtDesc(false, 0, sellerFound, pageable);
                 }
+               //낮은 가격순
+                else if (order.equals("priceAsc")) {
+                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPrice(false, 0, sellerFound, pageable);
+                }
+                //높은 가격순: 파마미터로 그냥 pageable만 넣으면 전체조회가 되어버린다. 판매자 기준으로 필터링한 상태에서 정렬하고 싶으면 Seller도 파라미터로 넣어줘야 한다.
+                else if (order.equals("priceDesc")) {
+                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPriceDesc(false, 0, sellerFound, pageable);
+                }
                 //판매순
-                else if (order.equals("판매순")) {
+                else if (order.equals("sales")) {
                     productList = productRepository.findBySellerOrderBySalesAmounts(sellerFound, pageable);
+                } else {
+                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByCreatedAtDesc(false, 0, sellerFound, pageable);
                 }
 
                 //Entity -> Dto로 변환

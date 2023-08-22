@@ -56,7 +56,7 @@ public class SellerController {
     public ResponseDto<Object> getProductsList(
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "12") int size,
+            @RequestParam(value = "size", defaultValue = "10") int size,
             @AuthenticationPrincipal CustomUserDetail userDetails){
 
         Integer memberId = userDetails.getMemberIdx();
