@@ -92,5 +92,9 @@ public class ProductController {
         return ResponseDto.success(productService.searchProduct(keyword, order, pageable));
     }
 
-
+    @ApiOperation("물품과 판매량 조회")
+    @GetMapping("/products/sales")
+    public ResponseDto<?> getProductSales(Pageable pageable){
+        return ResponseDto.success(productService.getProductSales(pageable));
+    }
 }
