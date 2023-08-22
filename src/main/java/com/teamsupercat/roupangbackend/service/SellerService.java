@@ -2,7 +2,7 @@ package com.teamsupercat.roupangbackend.service;
 
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionWithProductRegisterRequest;
 import com.teamsupercat.roupangbackend.dto.product.AllProductsResponse;
 import com.teamsupercat.roupangbackend.dto.product.ProductCreateRequest;
 import com.teamsupercat.roupangbackend.entity.*;
@@ -80,45 +80,26 @@ public class SellerService {
             //판매자 찾기
             Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
 
-            //판매 물품
+            //product 엔티티로 변환
             Product product = productCreateRequest.toEntity(productCreateRequest, sellerFound);
 
             //product 엔티티 저장
             Product savedProduct = productRepository.save(product);
 
             //판매 물품 옵션
-            //List<OptionTypeRequest> 정의
-            List<OptionRegisterRequest1> optionRegisterRequests = productCreateRequest.getOptions();
+            List<OptionWithProductRegisterRequest> optionWithProductRegisterRequests = productCreateRequest.getOptions();
 
             if (!productCreateRequest.getExistsOption()) {
                 productRepository.save(savedProduct);
 
             } else {
-                insertProductOptions(savedProduct, optionRegisterRequests);
+                insertProductOptions(savedProduct, optionWithProductRegisterRequests);
             }
         } else {
-            throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS); //에러: 판매자만 물품 등록 할 수 있습니다.
+            //에러: 판매자만 물품 등록 할 수 있습니다.
+            throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
         }
     }
-
-
-    /* <멤버>
-     * 그냥 멤버이고 판매자가 아닌 경우 -> NO
-     * 그냥 멤버도 아닌 경우 -> NO
-     * 판매자인 경우 -> YES
-     *
-     * <물품 리스트>
-     * isDeleted = false 인 것만 불러온다
-     * 물품 리스트 비어있으면 return null
-     *
-     * <정렬>
-     * 물품 리스트가 없으면 return null
-     *
-     * <카테고리>
-     * 물품의 카테고리가 비어있으면 전체 다 보여준다.
-     * 물품의 카테고리가 있으면 해당 카테고리를 가진 물품 리스트만 보여준다.
-     *
-     */
 
     //todo 3. 판매자의 판매 물품 전체 조회
 
@@ -139,25 +120,25 @@ public class SellerService {
             //판매자 불러오기: 판매자 레포에서 멤버를 넣고 판매자를 찾는다.
             Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
 
-            //판매자의 물품 리스트(엔티티)를 불러오기: 판매자 id 넣고 isDeleted = false인 것들만.
+            //판매자의 물품 리스트 불러오기: 판매자 id 넣고 "isDeleted = false"인 것들만.
             Page<Product> productList = productRepository.findAllByIsDeletedAndSellerIdx(false, sellerFound, pageable);
 
             if (productList.isEmpty()) {
-                //판매자로 등록했지만 파는 물품이 없는 경우, 에러
-                throw new CustomException(ErrorCode.SELLER_PRODUCT_NOT_FOUND);
+                //판매자로 등록했지만 파는 물품이 없는 경우, 에러(204, No_Content)
+                throw new CustomException(ErrorCode.SELLER_PRODUCT_EMPTY_LIST);
             } else {
 
                 //높은 가격순: 파마미터로 그냥 pageable만 넣으면 전체조회가 되어버린다. 판매자 기준으로 필터링한 상태에서 정렬하고 싶으면 Seller도 파라미터로 넣어줘야 한다.
                 if (order.equals("낮은가격")) {
-                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByPrice(false, 0, sellerFound, pageable);
+                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPrice(false, 0, sellerFound, pageable);
                 }
                 //낮은 가격순
                 else if (order.equals("높은가격")) {
-                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByPriceDesc(false, 0, sellerFound, pageable);
+                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPriceDesc(false, 0, sellerFound, pageable);
                 }
                 //최신순
                 else if (order.equals("신상품")) {
-                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByCreatedAtDesc(false, 0, sellerFound, pageable);
+                    productList = productRepository.findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByCreatedAtDesc(false, 0, sellerFound, pageable);
                 }
                 //판매순
                 else if (order.equals("판매순")) {
@@ -169,7 +150,7 @@ public class SellerService {
             }
         } else throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
 
-//        List<AllProductsResponse> contentList = allProductsResponses.getContent();
+//      List<AllProductsResponse> contentList = allProductsResponses.getContent();
 
         return allProductsResponses;
     }
@@ -177,34 +158,42 @@ public class SellerService {
     //todo 5. 판매자의 판매 물품 수정
     @Transactional
     public void updateProduct(Integer productId, Integer memberId, ProductCreateRequest productCreateRequest) throws ParseException {
+
+        //유저 찾기, 없으면 에러
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.SELLER_USER_NOT_FOUND));
 
+        //판매하고 있는 product 찾기, 없으면 에러
         Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.SELLER_PRODUCT_NOT_FOUND));
 
+        //유저의 판매자 여부 확인
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
 
+        //판매자라면
         if (Boolean.TRUE.equals(areYouSeller)) {
             Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
+
+            //자신이 판매하는 물품인지 여부 확인
             if (existingProduct.getSellerIdx().getId() == sellerFound.getId()) {
 
                 productCreateRequest.updateEntity(existingProduct, sellerFound, productId);
 
                 Product savedProduct = productRepository.save(existingProduct);
 
-                List<OptionRegisterRequest1> optionRegisterRequests = productCreateRequest.getOptions();
                 //option: 삭제 후 재등록
-
+                List<OptionWithProductRegisterRequest> optionWithProductRegisterRequests = productCreateRequest.getOptions();
                 deleteProductOptions(productId);
-                insertProductOptions(savedProduct, optionRegisterRequests);
+                insertProductOptions(savedProduct, optionWithProductRegisterRequests);
 
             } else throw new CustomException(ErrorCode.SHOP_MISMATCH_SELLER);
 
+        //판매자가 아니면 에러
         } else throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
     }
 
     //todo 6. 판매자의 판매 물품 삭제
     @Transactional
     public void deleteProduct(Integer productId, Integer memberId) {
+
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.SELLER_USER_NOT_FOUND));
 
         Product existingProduct = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.SELLER_PRODUCT_NOT_FOUND));
@@ -212,31 +201,33 @@ public class SellerService {
         Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
 
         if (Boolean.TRUE.equals(areYouSeller)) {
+
             Seller sellerFound = sellerRepository.findSellerByMemberIdx(member);
+
             if (existingProduct.getSellerIdx().getId() == sellerFound.getId()) {
 
                 List<OptionType> optionTypes = optionTypeRepository.findAllByProductIdx(productId);
                 List<OptionDetail> optionDetails = optionDetailRepository.findAllByProductIdx(existingProduct);
 
-                if(optionTypes == null && optionDetails == null) {
+                if (optionTypes == null && optionDetails == null) {
                     productRepository.deleteProduct(productId);
-//                    productRepository.deleteById(productId);
-                } else{
+
+                } else {
                     productRepository.deleteProduct(productId);
                     optionTypeRepository.deleteOptionType(productId);
                     optionDetailRepository.deleteOptionDetail(existingProduct);
-//                    deleteProductOptions(productId);
-//                    productRepository.deleteById(productId);
+
                 }
             } else throw new CustomException(ErrorCode.SHOP_MISMATCH_SELLER);
         } else throw new CustomException(ErrorCode.SHOP_PRODUCT_ONLY_SELLERS);
     }
 
     //todo 물품 옵션 등록 메소드
-    public void insertProductOptions(Product savedProduct, List<OptionRegisterRequest1> optionRegisterRequests) {
-        for (OptionRegisterRequest1 optionRegisterRequest : optionRegisterRequests) {
+    public void insertProductOptions(Product savedProduct, List<OptionWithProductRegisterRequest> optionRegisterRequests) {
+        for (OptionWithProductRegisterRequest optionWithProductRegisterRequest : optionRegisterRequests) {
+
             // OptionService의 registerOptionOfProduct 메소드를 호출하여 옵션 등록
-            optionService.registerOptionOfProduct(optionRegisterRequest, savedProduct);
+            optionService.registerOptionOfProduct(optionWithProductRegisterRequest, savedProduct);
         }
         productRepository.save(savedProduct);
     }
@@ -247,16 +238,14 @@ public class SellerService {
         List<OptionType> optionTypes = optionTypeRepository.findAllByProductIdx(productId);
 
 //        for (OptionType optionType : optionTypes) {
-//            optionDetailRepository.deleteAllByOptionTypeIdx(optionType.getId());
-//        }
+//            optionDetailRepository.deleteAllByOptionTypeIdx(optionType.getId());}
 //        optionTypeRepository.deleteAllByProductIdx(productId);
-        //OptionType의 Id만 추출해서 리스트로 반환
 
+        //OptionType의 Id만 추출해서 리스트로 반환
         optionTypes.stream().map(OptionType::getId).forEach(optionTypeId -> {
             optionDetailRepository.deleteAllByOptionTypeIdx(optionTypeId);
             optionTypeRepository.deleteById(optionTypeId);
         });
-
     }
 
 }

@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -52,9 +53,14 @@ public class SellerController {
 
     @ApiOperation(value= "판매자의 판매 물품 리스트 조회 ", notes = "판매자의 판매 물품 리스트 조회")
     @GetMapping("/seller/products")
-    public ResponseDto<Object> getProductsList(@RequestParam(value = "order", required = false) String order, Pageable pageable, @AuthenticationPrincipal CustomUserDetail userDetails){
+    public ResponseDto<Object> getProductsList(
+            @RequestParam(value = "order", required = false) String order,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "12") int size,
+            @AuthenticationPrincipal CustomUserDetail userDetails){
 
         Integer memberId = userDetails.getMemberIdx();
+        Pageable pageable = PageRequest.of(page, size); // 기본 값 설정
 
         Page<AllProductsResponse> productsList = sellerService.getProductsList(order, pageable, memberId);
 
@@ -71,7 +77,7 @@ public class SellerController {
 
         sellerService.updateProduct(productId, memberId, productCreateRequest);
 
-        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 업데이트되었습니다.", null);
+        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 업데이트되었습니다.", "Product ID: " + productId);
     }
 
     @ApiOperation(value= "판매자의 판매 물품 삭제 ", notes = "판매자의 판매 물품 삭제")
@@ -82,7 +88,7 @@ public class SellerController {
         Integer memberId = userDetails.getMemberIdx();
         sellerService.deleteProduct(productId, memberId);
 
-        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 삭제되었습니다.", null);
+        return new ResponseDto<>(true, "판매자의 판매 물품이 정상적으로 삭제되었습니다.", "Product ID: " + productId);
     }
 
 

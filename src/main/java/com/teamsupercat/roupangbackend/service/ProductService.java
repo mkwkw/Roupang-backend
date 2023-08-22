@@ -24,44 +24,40 @@ import java.util.Map;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final SellerRepository sellerRepository;
-    private final MemberRepository memberRepository;
     private final ProductsCategoryRepository productsCategoryRepository;
-    private final SingleOrderRepository singleOrderRepository;
     private final OptionService optionService;
-    private final OptionTypeRepository optionTypeRepository;
-    private final OptionDetailRepository optionDetailRepository;
-    private final OptionTypeNameRepository optionTypeNameRepository;
-
 
 
     //todo 4. 판매 물품 상세 조회(판매자, 구매자인 경우 모두 동일)
     public ProductResponse getProductOne(Integer productId) throws ParseException {
 
-        //product 찾기, 없으면 에러
+        //product 찾기, 없으면 예외
         Product product = productRepository.findById(productId).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
 
-//      //product 찾기
-//      Product product = productRepository.findProductByIsDeletedAndId(false, productId);
+        //isDeleted == false 인 product 만 보여줌
+        if(product.getIsDeleted() == true){
+            throw new CustomException(ErrorCode.SELLER_PRODUCT_NOT_FOUND);
+        } else {
 
-        //product 카테고리 찾기, 없으면 에러(영속화)
-        ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_CATEGORY_NOT_FOUND));
+            //product 카테고리 찾기, 없으면 예외(영속화)
+            ProductsCategory productsCategory = productsCategoryRepository.findById(product.getProductsCategoryIdx().getId()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_CATEGORY_NOT_FOUND));
 
-        //optionService에서 options 불러오기
-        Map<String, Object> options = optionService.findOptionByProductIdx(productId);
+            //optionService에서 options 불러오기
+            Map<String, Object> options = optionService.findOptionByProductIdx(productId);
 
-        List<OptionTypeResponse> optionTypeResponseList;
+            List<OptionTypeResponse> optionTypeResponseList;
 
-        //options Map에서 "options"의 key, value만 사용한다.
-        if (options.containsKey("options")) {
+            //options Map에서 "options"의 key, value만 사용한다.
+            if (options.containsKey("options")) {
 
-            optionTypeResponseList = (List<OptionTypeResponse>) options.get("options");
+                optionTypeResponseList = (List<OptionTypeResponse>) options.get("options");
 
-        } else return null;
+            } else return null;
 
-        ProductResponse productResponse = new ProductResponse();
+            ProductResponse productResponse = new ProductResponse();
 
-        return productResponse.toDto2(product, optionTypeResponseList);
+            return productResponse.toDto2(product, optionTypeResponseList);
+        }
 
     }
 
