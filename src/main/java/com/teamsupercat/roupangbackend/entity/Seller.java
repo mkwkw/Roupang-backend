@@ -7,7 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-@ToString
+
 @Builder
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class Seller {
     @Column(name = "idx", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_idx", nullable = false)
     private Member memberIdx;
 

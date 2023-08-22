@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class OptionRegisterRequest1 {
+public class OptionWithProductRegisterRequest {
 
 //  private int productIdx;
     private String optionTypeName;

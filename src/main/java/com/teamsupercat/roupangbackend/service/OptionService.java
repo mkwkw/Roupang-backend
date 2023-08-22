@@ -3,7 +3,7 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.dto.option.OptionDetailResponse;
 import com.teamsupercat.roupangbackend.dto.option.OptionTypeResponse;
 import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionWithProductRegisterRequest;
 import com.teamsupercat.roupangbackend.dto.product.ProductResponse;
 import com.teamsupercat.roupangbackend.entity.OptionDetail;
 import com.teamsupercat.roupangbackend.entity.OptionType;
@@ -155,11 +155,11 @@ public class OptionService {
     }
 
     @Transactional
-    public void registerOptionOfProduct(OptionRegisterRequest1 optionRegisterRequest, Product savedProduct){
+    public void registerOptionOfProduct(OptionWithProductRegisterRequest optionWithProductRegisterRequest, Product savedProduct){
 
-//      int productIdx = optionRegisterRequest.getProductIdx();
-        String optionTypeName = optionRegisterRequest.getOptionTypeName();
-        List<String> optionDetailNames = optionRegisterRequest.getOptionDetailNames();
+//      int productIdx = optionWithProductRegisterRequest.getProductIdx();
+        String optionTypeName = optionWithProductRegisterRequest.getOptionTypeName();
+        List<String> optionDetailNames = optionWithProductRegisterRequest.getOptionDetailNames();
         Integer optionTypeNameIdx = 0;
 
         Product product = productRepository.findProductById(savedProduct.getId());

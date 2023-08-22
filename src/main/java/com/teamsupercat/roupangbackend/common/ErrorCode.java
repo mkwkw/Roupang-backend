@@ -48,10 +48,16 @@ public enum ErrorCode {
 
     // 상품
     CART_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다."),
-    SHOP_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
+    SHOP_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 물품이 존재하지 않습니다."),
     CART_NOTFOUND_PRODUCT_STOCK(HttpStatus.NOT_FOUND, "현재 상품은 품절입니다."),
     CART_OUT_OF_STOCK(HttpStatus.NOT_FOUND, "개의 상품 수량보다 많이 선택하셨습니다."),
     SHOP_OPTION_TYPE_NAME_NOT_FOUND(HttpStatus.NOT_FOUND, "옵션 타입을 찾을 수 없습니다."),
+
+    //판매자
+    SELLER_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저가 존재하지 않습니다."),
+    SELLER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
+    SELLER_PRODUCT_EMPTY_LIST(HttpStatus.NO_CONTENT, "판매하는 제품이 없습니다."),
+    SELLER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 판매자로 등록되어 있습니다."),
 
     // 카테고리
     SHOP_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."),
@@ -69,6 +75,8 @@ public enum ErrorCode {
 
     // 개별주문 테이블
     CART_SINGLE_ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "개별주문 항목을 가져오지 못했습니다."),
+    CART_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "선택한 옵션이 존재하지 않습니다."),
+
 
     // 리프래시 토큰
     REFRESH_TOKEN_NOT_FOUND_MEMBER_IDX(HttpStatus.BAD_REQUEST, "해당 유저의 식별값을 찾을 수 없습니다."),
