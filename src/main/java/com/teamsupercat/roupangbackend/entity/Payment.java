@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -24,10 +25,16 @@ public class Payment {
     private GroupedOrder groupedOrderIdx;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_methods_idx", nullable = false)
-    private PaymentMethod paymentMethodsIdx;
+    @JoinColumn(name = "delivery_address_idx", nullable = false)
+    private DeliveryAddress deliveryAddressIdx;
 
     @Column(name = "payment_total_amount", nullable = false)
     private Long paymentTotalAmount;
+
+    @Column(name = "payment_date", nullable = false)
+    private Instant paymentDate;
+
+    @Column(name = "cancellation_date")
+    private Instant cancellationDate;
 
 }
