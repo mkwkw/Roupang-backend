@@ -61,12 +61,15 @@ public class ProductService {
 
     }
 
-
-
     //물품 전체 조회
     public Page<ProductResponse> findProductsPagination(String order, Pageable pageable) {
 
         Page<Product> productEntities;
+
+        //예외처리: 우리의 정렬 기준이 아닐 때
+        if(!(order.equals("priceAsc") || order.equals("priceDesc") || order.equals(""))){
+            throw new CustomException(ErrorCode.SHOP_BAD_SORT_REQUEST);
+        }
 
         if (order.equals("priceAsc")) { //가격 오름차순
             productEntities = productRepository.findProductByIsDeletedAndStockGreaterThanOrderByPrice(false, 0, pageable);
@@ -79,13 +82,25 @@ public class ProductService {
         //TODO. 인기순(판매량순)
 
 
+        //예외처리: 물품이 아무것도 없을 때
+        if(productRepository.findAll().isEmpty()){
+            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
+        }
+
         return productEntities.map(product -> new ProductResponse().toDto(product));
-        //return productEntities.map(productMapper.INSTANCE::ProductEntityToProductResponse);
-        //return productEntities;
     }
 
+    //카테고리별 물품 조회
     public Page<ProductResponse> findProductsByCategoryIdxPagination(String order, Integer categoryIdx, Pageable pageable) {
-        //TODO. 해당 카테고리에 해당하는 물품이 없는 경우 - 예외 처리
+
+        //예외처리: 우리가 갖고있는 카테고리가 아닐 때
+        productsCategoryRepository.findById(categoryIdx).orElseThrow(()->new CustomException(ErrorCode.SHOP_CATEGORY_NOT_FOUND));
+
+        //예외처리: 우리의 정렬 기준이 아닐 때
+        if(!(order.equals("priceAsc") || order.equals("priceDesc") || order.equals(""))){
+            throw new CustomException(ErrorCode.SHOP_BAD_SORT_REQUEST);
+        }
+
         Page<Product> productEntities;
 
         if (order.equals("priceAsc")) { //가격 오름차순
@@ -98,12 +113,22 @@ public class ProductService {
 
         //TODO. 인기순(판매량순)
 
+        //예외처리: 카테고리에 상품이 없을 때
+        if(productRepository.findProductByProductsCategoryIdxId(categoryIdx).isEmpty()){
+            throw new CustomException(ErrorCode.SHOP_CATEGORY_PRODUCT_EMPTY_LIST);
+        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
 
+    //키워드로 물품 검색
     public Page<ProductResponse> searchProduct(String keyword, String order, Pageable pageable){
         Page<Product> productEntities;
+
+        //예외처리: 우리의 정렬 기준이 아닐 때
+        if(!(order.equals("priceAsc") || order.equals("priceDesc") || order.equals(""))){
+            throw new CustomException(ErrorCode.SHOP_BAD_SORT_REQUEST);
+        }
 
         if(order.equals("priceAsc")){ //가격 오름차순
             productEntities = productRepository.findProductByProductNameContainingOrderByPrice(keyword, pageable);
@@ -115,13 +140,12 @@ public class ProductService {
             productEntities = productRepository.findProductByProductNameContaining(keyword, pageable);
         }
 
-        //TODO. 예외처리
-//        if(productEntities.isEmpty()){
-//            throw new CustomException(ErrorCode);
-//        }
-
         //TODO. 인기순(판매량순)
 
+        //예외처리: 해당 키워드를 포함하는 물품이 없을 때
+        if(productRepository.findProductByProductNameContaining(keyword).isEmpty()){
+            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
+        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }

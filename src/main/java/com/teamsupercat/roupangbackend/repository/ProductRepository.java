@@ -50,6 +50,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "ORDER BY SUM(so.amount) DESC")
     Page<Product> findBySellerOrderBySalesAmounts(Seller seller, Pageable pageable);
 
+    List<Product> findProductByProductNameContaining(String keyword);
 
     Page<Product> findProductByProductNameContaining(String keyword, Pageable pageable);
 
@@ -62,6 +63,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findProductByIsDeletedAndStockGreaterThanOrderByPriceDesc(boolean isDeleted, Integer stock, Pageable pageable);
 
     Page<Product> findProductByIsDeletedAndStockGreaterThan(boolean isDeleted, Integer stock, Pageable pageable);
+
 
     @Transactional
     @Modifying
