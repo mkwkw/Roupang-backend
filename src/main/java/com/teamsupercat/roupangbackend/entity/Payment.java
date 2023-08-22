@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -30,5 +31,11 @@ public class Payment {
 
     @Column(name = "payment_total_amount", nullable = false)
     private Long paymentTotalAmount;
+
+    @Column(name = "payment_date", nullable = false)
+    private Instant paymentDate;
+
+    @Column(name = "cancellation_date")
+    private Instant cancellationDate;
 
 }
