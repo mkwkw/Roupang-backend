@@ -1,4 +1,4 @@
-package com.teamsupercat.roupangbackend.dto.myPage;
+package com.teamsupercat.roupangbackend.dto;
 
 import com.teamsupercat.roupangbackend.entity.Member;
 import lombok.*;
