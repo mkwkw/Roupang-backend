@@ -42,6 +42,14 @@ public class SellerService {
         if (optionalMember.isPresent()) {
             Member member = optionalMember.get();
 
+            //판매자 등록 여부
+            Boolean areYouSeller = sellerRepository.existsByMemberIdx(member);
+
+            //판매자로 등록되어 있으면
+            if (Boolean.TRUE.equals(areYouSeller)) {
+                throw new CustomException(ErrorCode.SELLER_ALREADY_EXISTS);
+            } else {
+
             //판매자 생성(판매자 등록)
             Seller newSeller = Seller.builder()
                     .memberIdx(member)
@@ -54,7 +62,7 @@ public class SellerService {
             sellerRepository.save(newSeller);
 
             return newSeller.getId();
-
+           }
         } else throw new CustomException(ErrorCode.SELLER_USER_NOT_FOUND);
     }
 
@@ -181,6 +189,7 @@ public class SellerService {
 
                 //option: 삭제 후 재등록
                 List<OptionWithProductRegisterRequest> optionWithProductRegisterRequests = productCreateRequest.getOptions();
+
                 deleteProductOptions(productId);
                 insertProductOptions(savedProduct, optionWithProductRegisterRequests);
 
