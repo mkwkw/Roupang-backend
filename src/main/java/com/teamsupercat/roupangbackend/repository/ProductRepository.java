@@ -17,15 +17,13 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
 
-    Product findProductByIsDeletedAndId(Boolean isDeleted, Integer productId);
-
     Page<Product> findAllByIsDeletedAndSellerIdx(Boolean isDeleted, Seller seller, Pageable pageable);
 
-    Page<Product> findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByPrice(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
+    Page<Product> findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPrice(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
 
-    Page<Product> findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByPriceDesc(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
+    Page<Product> findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByPriceDesc(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
 
-    Page<Product> findProductByIsDeletedAndStockGreaterThanAndSellerIdxOrderByCreatedAtDesc(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
+    Page<Product> findProductByIsDeletedAndStockGreaterThanEqualAndSellerIdxOrderByCreatedAtDesc(Boolean isDeleted, Integer stock, Seller sellerId, Pageable pageable);
 
     Page<Product> findProductByOrderByPrice(Pageable pageable);
 

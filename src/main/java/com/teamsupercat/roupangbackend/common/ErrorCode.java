@@ -56,6 +56,7 @@ public enum ErrorCode {
     //판매자
     SELLER_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저가 존재하지 않습니다."),
     SELLER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
+    SELLER_PRODUCT_EMPTY_LIST(HttpStatus.NO_CONTENT, "판매하는 제품이 없습니다."),
 
     // 카테고리
     SHOP_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 카테고리가 존재하지 않습니다."),
