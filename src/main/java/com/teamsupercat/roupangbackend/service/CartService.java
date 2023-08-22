@@ -8,8 +8,10 @@ import com.teamsupercat.roupangbackend.dto.cart.request.RemoveCartRequest;
 import com.teamsupercat.roupangbackend.dto.cart.response.CartAllResponse;
 import com.teamsupercat.roupangbackend.entity.Cart;
 import com.teamsupercat.roupangbackend.entity.Member;
+import com.teamsupercat.roupangbackend.entity.OptionDetail;
 import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.repository.CartRepository;
+import com.teamsupercat.roupangbackend.repository.OptionDetailRepository;
 import com.teamsupercat.roupangbackend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +29,11 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final OptionDetailRepository optionDetailRepository;
 
     // todo: 장바구니에 수량 설정 후 등록
     @Transactional
     public void cartProductPlus(Member member, CartChangeRequest cartChangeRequest) {
-
         // 추가하려는 상품 검색
         Product product = productRepository.findById(cartChangeRequest.getProductIdx()).orElseThrow(() -> new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
 
@@ -52,8 +54,8 @@ public class CartService {
         if (optionalCart.isPresent()) {
             saveToEntity.setId(optionalCart.get().getId());
             saveToEntity.setAmount(cartChangeRequest.getAmount());
+            saveToEntity.setOptionDetail(cartChangeRequest.getOptionDetail().toString());
         }
-
         // 저장 및 수정
         cartRepository.save(saveToEntity);
     }

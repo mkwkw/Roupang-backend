@@ -3,6 +3,8 @@ package com.teamsupercat.roupangbackend.dto.cart.response;
 import com.teamsupercat.roupangbackend.entity.Cart;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,6 +23,7 @@ public class CartAllResponse {
     private Integer amount;
     private Integer productStock;
     private String createdAt;
+    private String optionDetail;
 
     public CartAllResponse toEntity(Integer memberId, Cart cart) {
         return CartAllResponse.builder()
@@ -36,6 +39,7 @@ public class CartAllResponse {
                 .amount(cart.getAmount())
                 .productStock(cart.getProductIdx().getStock())
                 .createdAt(cart.getCreatedAt().toString())
+                .optionDetail(cart.getOptionDetail().toString())
                 .build();
     }
 }

@@ -3,7 +3,8 @@ package com.teamsupercat.roupangbackend.service;
 import com.teamsupercat.roupangbackend.common.CustomException;
 import com.teamsupercat.roupangbackend.common.ErrorCode;
 import com.teamsupercat.roupangbackend.common.dynamicMessageException.CustomMessageException;
-import com.teamsupercat.roupangbackend.dto.cart.request.PurchaseItemRequest;
+import com.teamsupercat.roupangbackend.dto.order.request.PurchaseItemRequest;
+import com.teamsupercat.roupangbackend.dto.order.response.PurchaseItemResponse;
 import com.teamsupercat.roupangbackend.entity.*;
 import com.teamsupercat.roupangbackend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -28,56 +31,74 @@ public class CartOrderService {
     private final PaymentRepository paymentRepository;
     private final PaymentMethodRepository paymentMethodRepository;
 
-
     // todo: 장바구니 상품값을 가져와서 Single_orders테이블에 넣고 idx값을 가지고 Grouped_order 테이블을 만들고 Grouped_order 테이블 고유번호를 뽑는다
     @Transactional
-    public void purchaseItemsFromCart(Integer memberId, List<PurchaseItemRequest> requests) {
-        Member bymember = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ErrorCode.CART_USER_NOT_FOUND));
+    public List<PurchaseItemResponse> purchaseItemsFromCart(Member member, List<PurchaseItemRequest> requests) {
+
+        PurchaseItemResponse purchaseItemResponse = new PurchaseItemResponse();
+
         Instant now = Instant.now();
         // Grouped_order 테이블 식별값
-        String groupedId = bymember.getNickname() + now;
-        long productAllAmount = 0;// 구매수량*상품가격 = 총 결제금액
-        // requests담을 리스트선언
-        List<SingleOrder> singleOrders = new ArrayList<>();
+        String groupedId = member.getNickname() + now;
+        long productAllPrice = 0;// 구매수량*상품가격 = 총 결제금액
+        // request 담을 리스트선언
+        List<SingleOrder> singleOrderList = new ArrayList<>();
 
-
+        //받아온 값을 Single_order 테이블에 넣어주는 작업
         for (PurchaseItemRequest request : requests) {
+            // 실제 상품검색
             Product product = productRepository.findById(request.getProductIdx()).orElseThrow(() -> new CustomException(ErrorCode.CART_PRODUCT_NOT_FOUND));
+            // 데이터 담을 객체 생성
             SingleOrder singleOrder = new SingleOrder();
-            singleOrder.setMemberIdx(bymember);
+            singleOrder.setMemberIdx(member);
             singleOrder.setProductIdx(product);
             singleOrder.setAmount(request.getAmount());
+            // TODO: 상품옵션도 추가할 예정
             singleOrder.setOrderDate(now);
             singleOrder.setIsDeleted(false);
-            singleOrders.add(singleOrder);
+            // set 한 객체를 SingleOrder리스트에 담기
+            singleOrderList.add(singleOrder);
         }
-        List<SingleOrder> bySaveAll = singleOrderRepository.saveAll(singleOrders);
+        // 저장 후 저장한 테이블을 가져옴
+        List<SingleOrder> singleOrders = singleOrderRepository.saveAll(singleOrderList);
+        // response 로 형변환
+        List<PurchaseItemResponse> collect = singleOrders.stream().map(purchaseItemResponse::toSingleOrderList).collect(Collectors.toList());
 
-        // saveAll 에 보내줄 리스트 생성
+        return collect;
+
+
+ /*
+        // GroupOrder리스트 생성
         List<GroupedOrder> groupedOrderList = new ArrayList<>();
 
-        // bySaveAll 리스트만큼 order 값을 set 해줌
-        for (SingleOrder order : bySaveAll) {
-            // SingleOrder 데이터를 객체로 받아옵니다.
-            SingleOrder singleOrder = singleOrderRepository.findById(order.getId()).orElseThrow(() -> new CustomException(ErrorCode.CART_SINGLE_ORDER_NOT_FOUND));
+      // singleOrders 리스트만큼 order 값을 set 해줌
+        for (SingleOrder order : singleOrders) {
             // 리스트형태가 아닌 GroupedOrder 객체를 선언
             GroupedOrder groupedOrder = new GroupedOrder();
             // 데이터 하나씩 추가
-            groupedOrder.setSingleOrders(singleOrder);
+            groupedOrder.setSingleOrders(order);
+            // 위에서 생성한 유저닉네임+현재시간을 groupedId로 만들어서 추가
             groupedOrder.setGroupedId(groupedId);
-
+            // set 한 값을 리스트에 추가
             groupedOrderList.add(groupedOrder);
 
-            productAllAmount += groupedOrder.getSingleOrders().getProductIdx().getPrice() * groupedOrder.getSingleOrders().getAmount();
+            // 장바구니에 담긴 상품각각의 가격+수량 계산하여 장바구니 총 결제금액을 만든다
+            productAllPrice += groupedOrder.getSingleOrders().getProductIdx().getPrice() * groupedOrder.getSingleOrders().getAmount();
         }
+        // 저장
         groupedOrderRepository.saveAll(groupedOrderList);
+*/
 
-        payment(groupedId, productAllAmount);
-
-
+        // 보류 나중에 사용할 수 있음 payment(groupedId, productAllPrice);
     }
 
-    @Transactional
+    // 결제확인화면 유저기본정보 표시, 주소,전화번호 등등
+    public PurchaseItemResponse purchaseMemberFromCart(Member member) {
+        PurchaseItemResponse purchaseItemResponse = new PurchaseItemResponse();
+        return purchaseItemResponse.toMember(member);
+    }
+
+  /*  @Transactional
     public void payment(String groupedId, long productAllAmount) {
         // 그룹 묶음 하나만
         GroupedOrder groupedOrder = groupedOrderRepository.findFirstByGroupedId(groupedId);
@@ -90,7 +111,6 @@ public class CartOrderService {
 
 
         // 주문하려는 상품의 낱개 갯수 파악
-
         Payment payment = new Payment();
         Member bymember = new Member();
 
@@ -148,4 +168,6 @@ public class CartOrderService {
             cartRepository.save(cart);
         }
     }
+*/
+
 }

@@ -6,6 +6,8 @@ import com.teamsupercat.roupangbackend.entity.Product;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,6 +17,7 @@ import java.time.Instant;
 public class CartChangeRequest {
     private Integer productIdx;
     private Integer amount;
+    private List<String> optionDetail;
 
     public Cart saveToEntity(Member member, Product byproduct) {
         return Cart.builder()
@@ -23,6 +26,7 @@ public class CartChangeRequest {
                 .amount(amount)
                 .createdAt(Instant.now())
                 .isDeleted(false)
+                .optionDetail(getOptionDetail().toString())
                 .build();
     }
 }
