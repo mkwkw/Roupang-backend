@@ -1,6 +1,9 @@
 package com.teamsupercat.roupangbackend.entity;
 
 import lombok.*;
+import net.bytebuddy.implementation.bind.annotation.Default;
+import net.bytebuddy.implementation.bind.annotation.DefaultCall;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.Instant;

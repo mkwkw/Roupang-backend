@@ -1,7 +1,7 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.*;
 
+import lombok.*;
 import javax.persistence.*;
 
 @Entity
@@ -32,3 +32,5 @@ public class DeliveryAddress {
     private String deliveryMemo;
 
 }
+
+
