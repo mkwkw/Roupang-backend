@@ -1,6 +1,7 @@
 package com.teamsupercat.roupangbackend.config;
 
 import com.fasterxml.classmate.TypeResolver;
+import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -32,7 +34,6 @@ public class SwaggerConfig {
 
     private final TypeResolver typeResolver;
 
-
     @Bean
     public Docket api() {
 
@@ -47,6 +48,8 @@ public class SwaggerConfig {
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(Pageable.class), typeResolver.resolve(Page.class)))
+                .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(CustomUserDetail.class), typeResolver.resolve(Security.class)))
+                .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(UserDetails.class), typeResolver.resolve(Security.class)))
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
@@ -99,5 +102,9 @@ public class SwaggerConfig {
         private List<String> sort;
     }
 
-
+    @Getter
+    @Setter
+    @ApiModel
+    static class Security {
+    }
 }

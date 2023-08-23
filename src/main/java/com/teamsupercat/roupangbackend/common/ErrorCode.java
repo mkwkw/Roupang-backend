@@ -22,6 +22,7 @@ public enum ErrorCode {
     LOGIN_NOT_FOUND_EMAIL(HttpStatus.BAD_REQUEST, "등록되어 있지 않은 이메일 입니다."),
     LOGIN_NOT_MATCH_PASSWORD(HttpStatus.BAD_REQUEST, "등록된 회원의 정보와 일치하지 않습니다."),
     LOGIN_NOT_FOUND_TOKEN(HttpStatus.BAD_REQUEST, "맴버에 해당하는 토큰을 찾을수 없습니다."),
+    LOGIN_BEFORE_ALLOWED_LOGIN_TIME(HttpStatus.UNAUTHORIZED, "로그인 시도 횟수초과로 일시적으로 잠금됩니다."),
 
     //로그아웃
     LOGOUT_NOT_FOUND_EMAIL(HttpStatus.BAD_REQUEST, "등록되어 있지 않은 이메일 입니다."),
