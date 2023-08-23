@@ -24,7 +24,7 @@ public class PurchaseItemRequest {
                 .productIdx(product)
                 .amount(purchaseItemRequest.getAmount())
                 .orderDate(now)
-                .optionDetail(purchaseItemRequest.getOptionDetail().toString())
+                .optionDetail(purchaseItemRequest.getOptionDetail())
                 .build();
     }
 }

@@ -24,7 +24,7 @@ public class CartChangeRequest {
                 .amount(amount)
                 .createdAt(Instant.now())
                 .isDeleted(false)
-                .optionDetail(getOptionDetail().toString())
+                .optionDetail(getOptionDetail())
                 .build();
     }
 }
