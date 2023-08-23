@@ -65,25 +65,25 @@ public class MemberService {
     }
 
     @Transactional(noRollbackFor = {CustomException.class})
-    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response){
         String domain = request.getRemoteAddr();
-        LoginFail loginCheck = loginFailRepository.findByDomain(domain).orElseGet(() -> memberMapper.makeLoginFail(domain));
+        Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
+
+        LoginFail loginCheck = loginFailRepository.findByDomainAndEmail(domain,loginRequestDto.getEmail()).orElseGet(() -> memberMapper.makeLoginFail(loginRequestDto.getEmail(), domain));
         boolean allowedTime = checkAllowedTime(loginCheck);
 
         try {
             if (!allowedTime) {
                 throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
             }
-
-            Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
-                    .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
-
             if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
                 String accessToken = jwtTokenProvider.createAccessToken(member);
                 String refreshToken = jwtTokenProvider.createRefreshToken(member);
                 RefreshToken token;
 
                 boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
+
                 if (tokenExistCheck){
                     token = refreshTokenRepository.findByMemberIdx(member.getId())
                             .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN));
@@ -137,9 +137,10 @@ public class MemberService {
         }
     }
 
-    public Boolean checkAllowedTime (LoginFail loginFail) {
+    public Boolean checkAllowedTime (LoginFail loginFail)  {
         if(loginFail == null)return true;
         Instant now = Instant.now();
+        now = now.plusMillis(1L);
         return now.isAfter(loginFail.getAllowedLoginTime());
     }
 

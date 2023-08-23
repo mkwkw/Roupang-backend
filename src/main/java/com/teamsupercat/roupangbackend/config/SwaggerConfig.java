@@ -48,8 +48,7 @@ public class SwaggerConfig {
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(Pageable.class), typeResolver.resolve(Page.class)))
-                .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(CustomUserDetail.class), typeResolver.resolve(Security.class)))
-                .alternateTypeRules(AlternateTypeRules.newRule(typeResolver.resolve(UserDetails.class), typeResolver.resolve(Security.class)))
+                .ignoredParameterTypes(UserDetails.class, CustomUserDetail.class)
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
@@ -100,11 +99,5 @@ public class SwaggerConfig {
 
         @ApiModelProperty(value = "정렬(사용법: 컬럼명,ASC|DESC)")
         private List<String> sort;
-    }
-
-    @Getter
-    @Setter
-    @ApiModel
-    static class Security {
     }
 }

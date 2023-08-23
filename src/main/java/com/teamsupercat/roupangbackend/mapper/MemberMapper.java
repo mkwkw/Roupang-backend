@@ -36,11 +36,13 @@ public class MemberMapper {
        return refreshToken;
     }
 
-    public LoginFail makeLoginFail(String domain){
+    public LoginFail makeLoginFail(String email, String domain){
         return LoginFail.builder()
+                .email(email)
                 .domain(domain)
                 .trial(0)
                 .allowedLoginTime(Instant.now())
+                .isDeleted(false)
                 .build();
     }
 }

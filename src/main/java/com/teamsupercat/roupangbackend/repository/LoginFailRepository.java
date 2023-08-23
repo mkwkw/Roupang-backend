@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface LoginFailRepository extends JpaRepository<LoginFail, Integer> {
-    Optional<LoginFail> findByDomain(String domain);
+    Optional<LoginFail> findByDomainAndEmail(String domain,String Email);
 }

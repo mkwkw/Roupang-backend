@@ -1,6 +1,7 @@
 package com.teamsupercat.roupangbackend.dto;
 
 import com.teamsupercat.roupangbackend.entity.Member;
+import com.teamsupercat.roupangbackend.entity.Seller;
 import lombok.*;
 
 import java.time.Instant;
@@ -27,6 +28,44 @@ public class MyPageDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class MyPageSellerResponse {
+
+        private Integer memberIdx;
+        private String nickname;
+        private String phoneNumber;
+        private String email;
+
+        private String address;
+        private String memberImg;
+        private boolean seller;
+
+        private Long userPoint;
+
+        private Instant createdAt;
+        private Instant updatedAt;
+
+        public static MyPageSellerResponse toMemberSellerResponse(Member member, Seller seller){
+            return MyPageSellerResponse.builder()
+                    .memberIdx(member.getId())
+                    .nickname(member.getNickname())
+                    .phoneNumber(member.getPhoneNumber())
+                    .email(member.getEmail())
+                    .address(member.getAddress())
+                    .seller(seller !=null)
+                    .memberImg(member.getMemberImg())
+                    .userPoint(member.getUserPoint())
+                    .createdAt(member.getCreatedAt())
+                    .updatedAt(member.getUpdatedAt())
+                    .build();
+        }
+
+    }
+
+    @ToString
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MyPageResponse {
 
         private Integer memberIdx;
@@ -42,9 +81,8 @@ public class MyPageDto {
         private Instant createdAt;
         private Instant updatedAt;
 
-        public static MyPageResponse toResponse(Member member){
-
-            return MyPageResponse.builder()
+        public static MyPageSellerResponse toResponse(Member member){
+            return MyPageSellerResponse.builder()
                     .memberIdx(member.getId())
                     .nickname(member.getNickname())
                     .phoneNumber(member.getPhoneNumber())
@@ -55,10 +93,6 @@ public class MyPageDto {
                     .createdAt(member.getCreatedAt())
                     .updatedAt(member.getUpdatedAt())
                     .build();
-        }
-
-        public static List<MyPageResponse> toResponse(List<Member> list){
-            return list.stream().map(MyPageResponse::toResponse).collect(Collectors.toList());
         }
 
     }
