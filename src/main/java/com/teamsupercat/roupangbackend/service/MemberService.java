@@ -6,9 +6,11 @@ import com.teamsupercat.roupangbackend.common.ResponseDto;
 import com.teamsupercat.roupangbackend.dto.member.DuplicateCheckDto;
 import com.teamsupercat.roupangbackend.dto.member.LoginRequestDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
+import com.teamsupercat.roupangbackend.entity.LoginFail;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.entity.RefreshToken;
 import com.teamsupercat.roupangbackend.mapper.MemberMapper;
+import com.teamsupercat.roupangbackend.repository.LoginFailRepository;
 import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import com.teamsupercat.roupangbackend.repository.RefreshTokenRepository;
 import com.teamsupercat.roupangbackend.security.JwtTokenProvider;
@@ -18,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
@@ -28,6 +32,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final LoginFailRepository loginFailRepository;
 
     @Transactional
     public ResponseDto<?> createMember(@RequestBody SignupRequestDto signupRequestDto) {
@@ -59,31 +64,45 @@ public class MemberService {
         return ResponseDto.success("회원탈퇴에 성공하였습니다.");
     }
 
-    @Transactional
-    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
+    @Transactional(noRollbackFor = {CustomException.class})
+    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response) {
+        String domain = request.getRemoteAddr();
+        LoginFail loginCheck = loginFailRepository.findByDomain(domain).orElseGet(() -> memberMapper.makeLoginFail(domain));
+        boolean allowedTime = checkAllowedTime(loginCheck);
 
-        if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
-            String accessToken = jwtTokenProvider.createAccessToken(member);
-            String refreshToken = jwtTokenProvider.createRefreshToken(member);
-            RefreshToken token;
-
-            boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
-            if (tokenExistCheck){
-                token = refreshTokenRepository.findByMemberIdx(member.getId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN));
-                token.updateToken(refreshToken);
-            }else{
-                token = memberMapper.RefreshTokenFromToken(member,refreshToken);
-                refreshTokenRepository.save(token);
+        try {
+            if (!allowedTime) {
+                throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
             }
 
-            response.setHeader("Authorization","Bearer "+accessToken);
+            Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
+                    .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
 
+            if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
+                String accessToken = jwtTokenProvider.createAccessToken(member);
+                String refreshToken = jwtTokenProvider.createRefreshToken(member);
+                RefreshToken token;
+
+                boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
+                if (tokenExistCheck){
+                    token = refreshTokenRepository.findByMemberIdx(member.getId())
+                            .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN));
+                    token.updateToken(refreshToken);
+                }else{
+                    token = memberMapper.RefreshTokenFromToken(member,refreshToken);
+                    refreshTokenRepository.save(token);
+                }
+
+                response.setHeader("Authorization","Bearer "+accessToken);
+
+                loginCheck.init();
+            }else {
+                throw new CustomException(ErrorCode.LOGIN_NOT_MATCH_PASSWORD);
+            }
             return ResponseDto.success("로그인에 성공하였습니다.");
-        }else {
-            throw new CustomException(ErrorCode.LOGIN_NOT_MATCH_PASSWORD);
+        }finally {
+            loginCheck.setTrial(loginCheck.getTrial()+1);
+            loginFailRepository.save(loginCheck);
         }
     }
     @Transactional
@@ -116,5 +135,16 @@ public class MemberService {
         }else{
             throw new CustomException(ErrorCode.SIGNUP_CHECK_FAIL);
         }
+    }
+
+    public Boolean checkAllowedTime (LoginFail loginFail) {
+        if(loginFail == null)return true;
+        Instant now = Instant.now();
+        return now.isAfter(loginFail.getAllowedLoginTime());
+    }
+
+    @Transactional
+    public void save (LoginFail loginFail) {
+       loginFailRepository.save(loginFail);
     }
 }
