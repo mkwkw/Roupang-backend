@@ -53,7 +53,7 @@ security:
                 - profile_image
                 - account_email
     client-name: Kakao
-    redirect_uri: http://localhost:8080/login/oauth2/code/kakao
+    redirect_uri: http://3.12.151.96:8080/login/oauth2/code/kakao
     provider:
       kakao:
         authorizationUri: https://kauth.kakao.com/oauth/authorize
