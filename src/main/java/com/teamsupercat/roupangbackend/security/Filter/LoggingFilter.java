@@ -19,11 +19,10 @@ public class LoggingFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         String url = String.valueOf(request.getRequestURL());
 
-        log.info(method + url + " 요청이 들어왔습니다");
+        log.info(String.format("%s %s 요청이 들어왔습니다",method,url));
 
         filterChain.doFilter(request,response);
 
-        log.info(method + url +" 가 상태 " + response.getStatus() + " 로 응답이 나갑니다.");
-
+        log.info(String.format("%s %s 가 상태 %d 로 응답이 나갑니다.",method,url,response.getStatus()));
     }
 }

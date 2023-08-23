@@ -24,7 +24,7 @@ public class MyPageController {
 
     private final MyPageService myPageService;
     @ApiOperation(value = "마이페이지 조회")
-    @GetMapping(value = "/")
+    @GetMapping
     public ResponseDto<?> getMyPage(
             @AuthenticationPrincipal UserDetails userDetails,
             HttpServletRequest servletRequest) {
@@ -40,7 +40,7 @@ public class MyPageController {
     }
 
     @ApiOperation(value = "마이페이지 수정")
-    @PatchMapping("/")
+    @PatchMapping
     public ResponseDto<?> updateMyPage(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody MyPageDto.UpdateMyPageRequest updateMyPageRequest){
