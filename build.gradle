@@ -44,8 +44,8 @@ dependencies {
     // Email 인증
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-
-
+    // cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
 
 }
 

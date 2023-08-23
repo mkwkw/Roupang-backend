@@ -66,6 +66,7 @@ public class ProductService {
     }
 
     //물품 전체 조회
+    //@Cacheable(value = "products", key = "#order")
     public Page<ProductResponse> findProductsPagination(String order, Pageable pageable) {
 
         Page<Product> productEntities;
@@ -110,6 +111,11 @@ public class ProductService {
             int start = (int) pageRequest.getOffset();
             int end = Math.min((start + pageRequest.getPageSize()),productResponseList.size());
 
+            //페이지를 초과해서 요청했을 때
+            if((page+1)*size>productResponseList.size()){
+                return new PageImpl<>(new ArrayList<>(), pageRequest, productResponseList.size());
+            }
+
             return new PageImpl<>(productResponseList.subList(start,end), pageRequest, productResponseList.size());
         }
 
@@ -122,6 +128,7 @@ public class ProductService {
     }
 
     //카테고리별 물품 조회
+    //@Cacheable(value = "#categoryIdx.toString().concat(:).concat(#order)")
     public Page<ProductResponse> findProductsByCategoryIdxPagination(String order, Integer categoryIdx, Pageable pageable) {
 
         //예외처리: 우리가 갖고있는 카테고리가 아닐 때
@@ -158,6 +165,10 @@ public class ProductService {
             int start = (int) pageRequest.getOffset();
             int end = Math.min((start + pageRequest.getPageSize()),productResponseList.size());
 
+            //페이지를 초과해서 요청했을 때
+            if((page+1)*size>productResponseList.size()){
+                return new PageImpl<>(new ArrayList<>(), pageRequest, productResponseList.size());
+            }
             return new PageImpl<>(productResponseList.subList(start,end), pageRequest, productResponseList.size());
         }
 
@@ -170,6 +181,7 @@ public class ProductService {
     }
 
     //키워드로 물품 검색
+    //@Cacheable(value = "#keyword.concat(:).concat(#order)")
     public Page<ProductResponse> searchProduct(String keyword, String order, Pageable pageable){
         Page<Product> productEntities;
 
@@ -209,6 +221,10 @@ public class ProductService {
             int start = (int) pageRequest.getOffset();
             int end = Math.min((start + pageRequest.getPageSize()),productResponseList.size());
 
+            //페이지를 초과해서 요청했을 때
+            if((page+1)*size>productResponseList.size()){
+                return new PageImpl<>(new ArrayList<>(), pageRequest, productResponseList.size());
+            }
             return new PageImpl<>(productResponseList.subList(start,end), pageRequest, productResponseList.size());
         }
 
