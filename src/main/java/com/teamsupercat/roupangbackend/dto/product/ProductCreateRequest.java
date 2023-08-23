@@ -3,7 +3,7 @@ package com.teamsupercat.roupangbackend.dto.product;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.teamsupercat.roupangbackend.common.DateUtils;
-import com.teamsupercat.roupangbackend.dto.option.request.OptionRegisterRequest1;
+import com.teamsupercat.roupangbackend.dto.option.request.OptionWithProductRegisterRequest;
 import com.teamsupercat.roupangbackend.entity.Product;
 import com.teamsupercat.roupangbackend.entity.ProductsCategory;
 import com.teamsupercat.roupangbackend.entity.Seller;
@@ -29,7 +29,7 @@ public class ProductCreateRequest {
     private String productImg;
     private String descriptionImg;
     private Boolean existsOption;
-    private List<OptionRegisterRequest1> options;
+    private List<OptionWithProductRegisterRequest> options;
 
 
 

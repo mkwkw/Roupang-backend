@@ -36,4 +36,6 @@ public class Cart {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "option_detail")
+    private String optionDetail;
 }
