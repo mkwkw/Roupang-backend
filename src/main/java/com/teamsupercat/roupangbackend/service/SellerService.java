@@ -132,8 +132,10 @@ public class SellerService {
             Page<Product> productList = productRepository.findAllByIsDeletedAndSellerIdx(false, sellerFound, pageable);
 
             if (productList.isEmpty()) {
-                //판매자로 등록했지만 파는 물품이 없는 경우, 에러(204, No_Content)
-                throw new CustomException(ErrorCode.SELLER_PRODUCT_EMPTY_LIST);
+                //판매자로 등록했지만 파는 물품이 없는 경우
+//              throw new CustomException(ErrorCode.SELLER_PRODUCT_EMPTY_LIST);
+//              return null;
+                allProductsResponses = productList.map(product -> AllProductsResponse.fromProduct(product));
             } else {
 
                 // "order" 파라미터를 기본값으로 설정
