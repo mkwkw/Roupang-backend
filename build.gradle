@@ -30,6 +30,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     // swagger
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
@@ -46,6 +49,14 @@ dependencies {
 
     // cache
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // oauth2-client 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    //configuration 의존성 추가
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+
 
 }
 
