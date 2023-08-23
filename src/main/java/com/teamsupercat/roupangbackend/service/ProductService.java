@@ -114,9 +114,9 @@ public class ProductService {
         }
 
         //예외처리: 물품이 아무것도 없을 때
-        if(productRepository.findAll().isEmpty()){
-            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
-        }
+//        if(productRepository.findAll().isEmpty()){
+//            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
+//        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
@@ -162,9 +162,9 @@ public class ProductService {
         }
 
         //예외처리: 카테고리에 상품이 없을 때
-        if(productRepository.findProductByProductsCategoryIdxId(categoryIdx).isEmpty()){
-            throw new CustomException(ErrorCode.SHOP_CATEGORY_PRODUCT_EMPTY_LIST);
-        }
+//        if(productRepository.findProductByProductsCategoryIdxId(categoryIdx).isEmpty()){
+//            throw new CustomException(ErrorCode.SHOP_CATEGORY_PRODUCT_EMPTY_LIST);
+//        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
@@ -194,7 +194,6 @@ public class ProductService {
             List<Map<String, Object>> productSales = productRepository.findAllProductsBySingleOrder();
 
             productSales = productSales.stream().filter(p->String.valueOf(p.get("product_name")).contains(keyword)).collect(Collectors.toList());
-            log.info("list size={}", productSales.size());
 
             List<ProductResponse> productResponseList = new ArrayList<>();
             for(Map<String, Object> productSale : productSales){
@@ -214,9 +213,9 @@ public class ProductService {
         }
 
         //예외처리: 해당 키워드를 포함하는 물품이 없을 때
-        if(productRepository.findProductByProductNameContaining(keyword).isEmpty()){
-            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
-        }
+//        if(productRepository.findProductByProductNameContaining(keyword).isEmpty()){
+//            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
+//        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
