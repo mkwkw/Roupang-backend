@@ -65,18 +65,35 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Page<Product> findProductByIsDeletedAndStockGreaterThan(boolean isDeleted, Integer stock, Pageable pageable);
 
-
     @Transactional
     @Modifying
     @Query(value = "UPDATE Product p SET p.isDeleted = true WHERE p.id=:idx ")
     void deleteProduct(@Param("idx") Integer productId);
 
+    //판매순 정렬 - 물품 조회
     @Query(value = "select p.idx, p.products_category_idx, p.seller_idx, p.product_name, p.product_img, p.description, p.description_img, p.price, p.stock, p.sales_end_date, sum(s.amount) as sales_total from single_orders s right join product p on s.product_idx = p.idx group by p.idx order by sales_total desc", nativeQuery = true)
     List<Map<String, Object>> findAllProductsBySingleOrder();
 
-    @Query(value = "SELECT p.idx, p.products_category_idx, p.seller_idx, p.product_name, p.product_img, p.description, p.description_img, p.price, p.stock, p.sales_end_date, SUM(s.amount) AS sales_total FROM single_orders s RIGHT JOIN product p ON s.product_idx = p.idx WHERE p.products_category_idx=:categoryIdx GROUP By p.idx Order By sales_total DESC", nativeQuery = true)
-    List<Map<String, Object>> findProductsBySingleOrderAndCategoryIdx(@Param("categoryIdx") Integer categoryIdx);
+    @Query("SELECT p " +
+            "FROM Product p LEFT JOIN SingleOrder so ON p.id = so.productIdx.id " +
+            "WHERE p.isDeleted = false " +
+            "GROUP BY p " +
+            "ORDER BY SUM(so.amount) DESC")
+    Page<Product> findAllProductsOrderBySalesAmounts(Pageable pageable);
 
-    @Query(value = "SELECT p.idx, p.products_category_idx, p.seller_idx, p.product_name, p.product_img, p.description, p.description_img, p.price, p.stock, p.sales_end_date, SUM(s.amount) AS sales_total FROM single_orders s RIGHT JOIN product p ON s.product_idx = p.idx WHERE p.product_name Like %?1% GROUP By p.idx Order By sales_total DESC", nativeQuery = true)
-    List<Map<String, Object>> findProductsBySingleOrderAndKeyword(String keyword);
+    @Query("SELECT p " +
+            "FROM Product p LEFT JOIN SingleOrder so ON p.id = so.productIdx.id " +
+            "WHERE p.isDeleted = false AND p.productsCategoryIdx.id = :categoryIdx " +
+            "GROUP BY p " +
+            "ORDER BY SUM(so.amount) DESC")
+    Page<Product> findProductsByCategoryIdxOrderBySalesAmounts(@Param("categoryIdx") Integer categoryIdx, Pageable pageable);
+
+    @Query("SELECT p " +
+            "FROM Product p LEFT JOIN SingleOrder so ON p.id = so.productIdx.id " +
+            "WHERE p.isDeleted = false AND p.productName LIKE %:keyword% " +
+            "GROUP BY p " +
+            "ORDER BY SUM(so.amount) DESC")
+    Page<Product> findProductsByKeywordOrderBySalesAmounts(@Param("keyword") String keyword, Pageable pageable);
+
+
 }
