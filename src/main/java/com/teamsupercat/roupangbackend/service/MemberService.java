@@ -27,6 +27,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 @Service
 public class MemberService {
+    final long plusMin = 60 * 5;
     private final MemberMapper memberMapper;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -72,11 +73,11 @@ public class MemberService {
 
         LoginFail loginCheck = loginFailRepository.findByDomainAndEmail(domain,loginRequestDto.getEmail()).orElseGet(() -> memberMapper.makeLoginFail(loginRequestDto.getEmail(), domain));
         boolean allowedTime = checkAllowedTime(loginCheck);
+        if (!allowedTime) {
+            throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
+        }
 
         try {
-            if (!allowedTime) {
-                throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
-            }
             if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
                 String accessToken = jwtTokenProvider.createAccessToken(member);
                 String refreshToken = jwtTokenProvider.createRefreshToken(member);
@@ -102,6 +103,10 @@ public class MemberService {
             return ResponseDto.success("로그인에 성공하였습니다.");
         }finally {
             loginCheck.setTrial(loginCheck.getTrial()+1);
+            Integer count = loginCheck.getTrial();
+            if(count%5==0){
+                loginCheck.setAllowedLoginTime(Instant.now().plusSeconds(plusMin*(count/5)));
+            }
             loginFailRepository.save(loginCheck);
         }
     }

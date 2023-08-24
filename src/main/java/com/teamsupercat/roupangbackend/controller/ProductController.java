@@ -50,7 +50,7 @@ public class ProductController {
 
     @ApiOperation("카테고리별 물품 조회")
     @GetMapping("/products/category/{category_idx}")
-    public ResponseDto<?> findProductsByCategory(@PathVariable("category_idx") Integer categoryIdx, Pageable pageable, @RequestParam(value = "order", required = false) String order){
+    public ResponseDto<?> findProductsByCategory(@PathVariable("category_idx") Integer categoryIdx, Pageable pageable, @RequestParam(value = "order", required = false, defaultValue = "") String order){
         Page<ProductResponse> products = productService.findProductsByCategoryIdxPagination(order, categoryIdx, pageable);
         return ResponseDto.success(products);
     }
