@@ -15,8 +15,8 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "LoginFails", schema = "supercat")
-public class LoginFail {
+@Table(name = "loginAttempt", schema = "supercat")
+public class LoginAttempt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idx", nullable = false)

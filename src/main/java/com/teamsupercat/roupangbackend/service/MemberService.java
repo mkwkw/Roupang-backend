@@ -6,7 +6,7 @@ import com.teamsupercat.roupangbackend.common.ResponseDto;
 import com.teamsupercat.roupangbackend.dto.member.DuplicateCheckDto;
 import com.teamsupercat.roupangbackend.dto.member.LoginRequestDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
-import com.teamsupercat.roupangbackend.entity.LoginFail;
+import com.teamsupercat.roupangbackend.entity.LoginAttempt;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.entity.RefreshToken;
 import com.teamsupercat.roupangbackend.mapper.MemberMapper;
@@ -71,8 +71,11 @@ public class MemberService {
         Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
 
-        LoginFail loginCheck = loginFailRepository.findByDomainAndEmail(domain,loginRequestDto.getEmail()).orElseGet(() -> memberMapper.makeLoginFail(loginRequestDto.getEmail(), domain));
+        LoginAttempt loginCheck = loginFailRepository.findByDomainAndEmail(domain,loginRequestDto.getEmail())
+                .orElseGet(() -> memberMapper.makeLoginFail(loginRequestDto.getEmail(), domain));
+
         boolean allowedTime = checkAllowedTime(loginCheck);
+
         if (!allowedTime) {
             throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
         }
@@ -142,15 +145,15 @@ public class MemberService {
         }
     }
 
-    public Boolean checkAllowedTime (LoginFail loginFail)  {
-        if(loginFail == null)return true;
+    public Boolean checkAllowedTime (LoginAttempt loginAttempt)  {
+        if(loginAttempt == null)return true;
         Instant now = Instant.now();
         now = now.plusMillis(1L);
-        return now.isAfter(loginFail.getAllowedLoginTime());
+        return now.isAfter(loginAttempt.getAllowedLoginTime());
     }
 
     @Transactional
-    public void save (LoginFail loginFail) {
-       loginFailRepository.save(loginFail);
+    public void save (LoginAttempt loginAttempt) {
+       loginFailRepository.save(loginAttempt);
     }
 }
