@@ -75,6 +75,7 @@ public enum ErrorCode {
     // 결제
     CART_ORDER_PRODUCT_OUT_OF_STOCK(HttpStatus.NOT_FOUND, "개 재고가 부족하여 구매할 수 없습니다."),
     CART_ORDER_INSUFFICIENT_USER_POINT(HttpStatus.NOT_FOUND, "원 입니다 포인트가 부족합니다."),
+    CART_ORDER_ALREADY_PURCHASED(HttpStatus.BAD_REQUEST, "상품을 이미 구매하였습니다.."),
 
     // 개별주문 테이블
     CART_SINGLE_ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "개별주문 항목을 가져오지 못했습니다."),

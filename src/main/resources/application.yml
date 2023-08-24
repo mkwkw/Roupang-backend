@@ -34,3 +34,29 @@ springdoc:
   swagger-ui:
     path: /api-doc.html
 
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false # 개발 중에는 캐시 비활성화 권장
+    encoding: UTF-8
+
+
+security:
+  oauth2:
+    client_id: 845bad711438ba325143c971ec350d2d
+    client_secret: l5qHhA4eU6tWV7GxuurrS9W15Eu8eP79
+    client-authentication-method: POST
+    authorization-grant-type: authorization_code
+    scope:
+                - profile_nickname
+                - profile_image
+                - account_email
+    client-name: Kakao
+    redirect_uri: http://3.12.151.96:8080/login/oauth2/code/kakao
+    provider:
+      kakao:
+        authorizationUri: https://kauth.kakao.com/oauth/authorize
+        tokenUri: https://kauth.kakao.com/oauth/token
+        userInfoUri: https://kapi.kakao.com/v2/user/me
+        userNameAttribute: id

@@ -6,7 +6,7 @@ import com.teamsupercat.roupangbackend.common.ResponseDto;
 import com.teamsupercat.roupangbackend.dto.member.DuplicateCheckDto;
 import com.teamsupercat.roupangbackend.dto.member.LoginRequestDto;
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
-import com.teamsupercat.roupangbackend.entity.LoginFail;
+import com.teamsupercat.roupangbackend.entity.LoginAttempt;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.entity.RefreshToken;
 import com.teamsupercat.roupangbackend.mapper.MemberMapper;
@@ -27,6 +27,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 @Service
 public class MemberService {
+    final long plusMin = 60 * 5;
     private final MemberMapper memberMapper;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -65,25 +66,28 @@ public class MemberService {
     }
 
     @Transactional(noRollbackFor = {CustomException.class})
-    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseDto<?> loginMember(LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response){
         String domain = request.getRemoteAddr();
-        LoginFail loginCheck = loginFailRepository.findByDomain(domain).orElseGet(() -> memberMapper.makeLoginFail(domain));
+        Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
+
+        LoginAttempt loginCheck = loginFailRepository.findByDomainAndEmail(domain,loginRequestDto.getEmail())
+                .orElseGet(() -> memberMapper.makeLoginFail(loginRequestDto.getEmail(), domain));
+
         boolean allowedTime = checkAllowedTime(loginCheck);
 
+        if (!allowedTime) {
+            throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
+        }
+
         try {
-            if (!allowedTime) {
-                throw new CustomException(ErrorCode.LOGIN_BEFORE_ALLOWED_LOGIN_TIME);
-            }
-
-            Member member = memberRepository.findByEmail(loginRequestDto.getEmail())
-                    .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_EMAIL));
-
             if(passwordEncoder.matches(loginRequestDto.getPassword(),member.getUserPassword())){
                 String accessToken = jwtTokenProvider.createAccessToken(member);
                 String refreshToken = jwtTokenProvider.createRefreshToken(member);
                 RefreshToken token;
 
                 boolean tokenExistCheck = refreshTokenRepository.existsByMemberIdx(member.getId());
+
                 if (tokenExistCheck){
                     token = refreshTokenRepository.findByMemberIdx(member.getId())
                             .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_NOT_FOUND_TOKEN));
@@ -102,6 +106,10 @@ public class MemberService {
             return ResponseDto.success("로그인에 성공하였습니다.");
         }finally {
             loginCheck.setTrial(loginCheck.getTrial()+1);
+            Integer count = loginCheck.getTrial();
+            if(count%5==0){
+                loginCheck.setAllowedLoginTime(Instant.now().plusSeconds(plusMin*(count/5)));
+            }
             loginFailRepository.save(loginCheck);
         }
     }
@@ -137,14 +145,15 @@ public class MemberService {
         }
     }
 
-    public Boolean checkAllowedTime (LoginFail loginFail) {
-        if(loginFail == null)return true;
+    public Boolean checkAllowedTime (LoginAttempt loginAttempt)  {
+        if(loginAttempt == null)return true;
         Instant now = Instant.now();
-        return now.isAfter(loginFail.getAllowedLoginTime());
+        now = now.plusMillis(1L);
+        return now.isAfter(loginAttempt.getAllowedLoginTime());
     }
 
     @Transactional
-    public void save (LoginFail loginFail) {
-       loginFailRepository.save(loginFail);
+    public void save (LoginAttempt loginAttempt) {
+       loginFailRepository.save(loginAttempt);
     }
 }

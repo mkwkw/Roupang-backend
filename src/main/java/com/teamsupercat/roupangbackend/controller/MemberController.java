@@ -38,7 +38,7 @@ public class MemberController {
 
     @ApiOperation(value = "로그인")
     @PostMapping(value = "/login")
-    public ResponseDto<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseDto<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request, HttpServletResponse response){
         return memberService.loginMember(loginRequestDto,request,response);
     }
 
