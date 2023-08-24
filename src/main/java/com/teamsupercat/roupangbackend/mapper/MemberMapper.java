@@ -1,7 +1,7 @@
 package com.teamsupercat.roupangbackend.mapper;
 
 import com.teamsupercat.roupangbackend.dto.member.SignupRequestDto;
-import com.teamsupercat.roupangbackend.entity.LoginFail;
+import com.teamsupercat.roupangbackend.entity.LoginAttempt;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.entity.RefreshToken;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +36,13 @@ public class MemberMapper {
        return refreshToken;
     }
 
-    public LoginFail makeLoginFail(String domain){
-        return LoginFail.builder()
+    public LoginAttempt makeLoginFail(String email, String domain){
+        return LoginAttempt.builder()
+                .email(email)
                 .domain(domain)
                 .trial(0)
                 .allowedLoginTime(Instant.now())
+                .isDeleted(false)
                 .build();
     }
 }

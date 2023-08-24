@@ -43,14 +43,14 @@ public class ProductController {
 
     @ApiOperation("물품 조회 - 정렬 기준 설정 가능")
     @GetMapping("/products")
-    public ResponseDto<?> findAllProducts(Pageable pageable, @RequestParam(value = "order", required = false) String order) throws ParseException {
+    public ResponseDto<?> findAllProducts(@RequestParam(value = "order", required = false) String order, Pageable pageable) throws ParseException {
         Page<ProductResponse> products = productService.findProductsPagination(order, pageable);
         return ResponseDto.success(products);
     }
 
     @ApiOperation("카테고리별 물품 조회")
     @GetMapping("/products/category/{category_idx}")
-    public ResponseDto<?> findProductsByCategory(@PathVariable("category_idx") Integer categoryIdx, Pageable pageable, @RequestParam(value = "order", required = false) String order){
+    public ResponseDto<?> findProductsByCategory(@PathVariable("category_idx") Integer categoryIdx, Pageable pageable, @RequestParam(value = "order", required = false, defaultValue = "") String order){
         Page<ProductResponse> products = productService.findProductsByCategoryIdxPagination(order, categoryIdx, pageable);
         return ResponseDto.success(products);
     }
