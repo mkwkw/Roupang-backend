@@ -66,6 +66,7 @@ public class ProductService {
     }
 
     //물품 전체 조회
+    //@Cacheable(value = "products", key = "#order")
     public Page<ProductResponse> findProductsPagination(String order, Pageable pageable) {
 
         Page<Product> productEntities;
@@ -110,18 +111,24 @@ public class ProductService {
             int start = (int) pageRequest.getOffset();
             int end = Math.min((start + pageRequest.getPageSize()),productResponseList.size());
 
+            //페이지를 초과해서 요청했을 때
+            if((page+1)*size>productResponseList.size()){
+                return new PageImpl<>(new ArrayList<>(), pageRequest, productResponseList.size());
+            }
+
             return new PageImpl<>(productResponseList.subList(start,end), pageRequest, productResponseList.size());
         }
 
         //예외처리: 물품이 아무것도 없을 때
-        if(productRepository.findAll().isEmpty()){
-            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
-        }
+//        if(productRepository.findAll().isEmpty()){
+//            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
+//        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
 
     //카테고리별 물품 조회
+    //@Cacheable(value = "#categoryIdx.toString().concat(:).concat(#order)")
     public Page<ProductResponse> findProductsByCategoryIdxPagination(String order, Integer categoryIdx, Pageable pageable) {
 
         //예외처리: 우리가 갖고있는 카테고리가 아닐 때
@@ -158,18 +165,23 @@ public class ProductService {
             int start = (int) pageRequest.getOffset();
             int end = Math.min((start + pageRequest.getPageSize()),productResponseList.size());
 
+            //페이지를 초과해서 요청했을 때
+            if((page+1)*size>productResponseList.size()){
+                return new PageImpl<>(new ArrayList<>(), pageRequest, productResponseList.size());
+            }
             return new PageImpl<>(productResponseList.subList(start,end), pageRequest, productResponseList.size());
         }
 
         //예외처리: 카테고리에 상품이 없을 때
-        if(productRepository.findProductByProductsCategoryIdxId(categoryIdx).isEmpty()){
-            throw new CustomException(ErrorCode.SHOP_CATEGORY_PRODUCT_EMPTY_LIST);
-        }
+//        if(productRepository.findProductByProductsCategoryIdxId(categoryIdx).isEmpty()){
+//            throw new CustomException(ErrorCode.SHOP_CATEGORY_PRODUCT_EMPTY_LIST);
+//        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }
 
     //키워드로 물품 검색
+    //@Cacheable(value = "#keyword.concat(:).concat(#order)")
     public Page<ProductResponse> searchProduct(String keyword, String order, Pageable pageable){
         Page<Product> productEntities;
 
@@ -194,7 +206,6 @@ public class ProductService {
             List<Map<String, Object>> productSales = productRepository.findAllProductsBySingleOrder();
 
             productSales = productSales.stream().filter(p->String.valueOf(p.get("product_name")).contains(keyword)).collect(Collectors.toList());
-            log.info("list size={}", productSales.size());
 
             List<ProductResponse> productResponseList = new ArrayList<>();
             for(Map<String, Object> productSale : productSales){
@@ -210,13 +221,17 @@ public class ProductService {
             int start = (int) pageRequest.getOffset();
             int end = Math.min((start + pageRequest.getPageSize()),productResponseList.size());
 
+            //페이지를 초과해서 요청했을 때
+            if((page+1)*size>productResponseList.size()){
+                return new PageImpl<>(new ArrayList<>(), pageRequest, productResponseList.size());
+            }
             return new PageImpl<>(productResponseList.subList(start,end), pageRequest, productResponseList.size());
         }
 
         //예외처리: 해당 키워드를 포함하는 물품이 없을 때
-        if(productRepository.findProductByProductNameContaining(keyword).isEmpty()){
-            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
-        }
+//        if(productRepository.findProductByProductNameContaining(keyword).isEmpty()){
+//            throw new CustomException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
+//        }
 
         return productEntities.map(product -> new ProductResponse().toDto(product));
     }

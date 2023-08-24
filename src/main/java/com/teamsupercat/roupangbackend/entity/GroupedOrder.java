@@ -1,13 +1,15 @@
 package com.teamsupercat.roupangbackend.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Grouped_order", schema = "supercat")
 public class GroupedOrder {
     @Id

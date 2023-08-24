@@ -4,10 +4,12 @@ package com.teamsupercat.roupangbackend.entity;
 import lombok.*;
 import javax.persistence.*;
 
-@Entity
 @Getter
 @Setter
+@Entity
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Delivery_address", schema = "supercat")
 public class DeliveryAddress {
 
@@ -32,5 +34,4 @@ public class DeliveryAddress {
     private String deliveryMemo;
 
 }
-
 
