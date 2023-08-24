@@ -182,9 +182,8 @@ public class OptionService {
 //            optionTypeNameIdx = optionTypeName1.get().getId();
 //        }
 //
-        //위에 코드를 stream으로 간단하게 변경
-        Integer optionTypeNameIdx = optionTypeNameRepository.findOptionTypeNameByOptionName(optionTypeName).orElse(optionTypeNameRepository.save(new OptionTypeName(optionTypeName))).getId();
-
+        //option type name 중복 허용
+        Integer optionTypeNameIdx = optionTypeNameRepository.save(new OptionTypeName(optionTypeName)).getId();
         //option type
         OptionType optionType = optionTypeRepository.save(new OptionType(savedProduct.getId(), optionTypeNameIdx, ""));
 
