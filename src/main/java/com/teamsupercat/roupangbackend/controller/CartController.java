@@ -6,7 +6,6 @@ import com.teamsupercat.roupangbackend.common.ResponseDto;
 import com.teamsupercat.roupangbackend.dto.CustomUserDetail.CustomUserDetail;
 import com.teamsupercat.roupangbackend.dto.cart.request.CartChangeRequest;
 import com.teamsupercat.roupangbackend.dto.cart.request.RemoveCartRequest;
-import com.teamsupercat.roupangbackend.dto.cart.response.CartAllResponse;
 import com.teamsupercat.roupangbackend.entity.Member;
 import com.teamsupercat.roupangbackend.repository.MemberRepository;
 import com.teamsupercat.roupangbackend.service.CartService;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -41,7 +39,7 @@ public class CartController {
 
     @ApiOperation(value = "장바구니 전체조회")
     @GetMapping
-    public ResponseDto<List<CartAllResponse>> cartAllList(@AuthenticationPrincipal CustomUserDetail userDetail) {
+    public ResponseDto<?> cartAllList(@AuthenticationPrincipal CustomUserDetail userDetail) {
         return ResponseDto.success(cartService.cartAllList(authMemberCheck(userDetail)));
     }
 
