@@ -31,6 +31,6 @@
 - DB Too Many Connections 오류 발생! - 트러블 슈팅
 - Stream API 많이 사용하도록 노력하여 가독성 향상
 - LEFT JOIN 이용하여 판매순 정렬 개발
-- 성능 향상 위해서 Spring Cache, MySQL Index 적용
+- 성능 향상 위해서 Spring Cache, MySQL Index 적용해보았음
 ### 회고 글 URL
 https://mkwkw.tistory.com/101 
