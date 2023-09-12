@@ -27,6 +27,7 @@
 - AWS RDS(MySQL), EC2
 
 ### 의의
+- Pagination 구현
 - NoSQL이 아닌 RDB로 상품 옵션 테이블 설계
 - DB Too Many Connections 오류 발생! - 트러블 슈팅
 - Stream API 많이 사용하도록 노력하여 가독성 향상
